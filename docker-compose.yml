@@ -1,5 +1,5 @@
 networks:
-  charlymatloc-net:
+  charlymatloc.net:
     driver: bridge
 
 services:
@@ -14,21 +14,21 @@ services:
       - ./app:/var/php
     working_dir: /var/php
     networks:
-      - charlymatloc-net
+      - charlymatloc.net
     depends_on:
-      - charlymatloc-db
+      - charlymatloc.db
     command: sh -c "composer install && php -S 0.0.0.0:80 -t /var/php/public"
 
 
-  charlymatloc-db:
+  charlymatloc.db:
     image: 'postgres:latest'
     env_file: ./charlyMatLoc.env
     ports:
       - '5432:5432'
     networks:
-      - charlymatloc-net
+      - charlymatloc.net
     volumes:
-      - ./sql:/var/sql
+      - ./sql:/docker-entrypoint-initdb.d/
 
 
   adminer:
@@ -36,5 +36,5 @@ services:
     ports:
       - '8080:8080'
     networks:
-      - charlymatloc-net
+      - charlymatloc.net
 
