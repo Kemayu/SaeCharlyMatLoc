@@ -4,7 +4,7 @@
 .DS_STORE
 /coverage/
 # Vendor
-/vendor/
+vendor/
 # Logs
 /app/logs/*
 !/app/logs/README.md
