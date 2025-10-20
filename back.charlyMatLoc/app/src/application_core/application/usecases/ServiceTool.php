@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace charlyMatL\core\application\usecases;
+namespace charlymatloc\core\application\usecases;
 
-use charlyMatL\core\application\ports\api\ServiceToolInterface;
-use charlyMatL\core\application\ports\spi\repositoryInterfaces\ToolRepositoryInterface;
-use charlyMatL\core\dto\ToolDTO;
-use charlyMatL\core\domain\exception\ToolNotFoundException;
+use charlymatloc\core\application\ports\api\ServiceToolInterface;
+use charlymatloc\core\application\ports\spi\repositoryInterfaces\ToolRepositoryInterface;
+use charlymatloc\core\dto\ToolDTO;
+use charlymatloc\core\domain\exception\ToolNotFoundException;
 
 class ServiceTool implements ServiceToolInterface
 {

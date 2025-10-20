@@ -1,5 +1,5 @@
 <?php
-namespace App\Domain\Exception;
+namespace charlymatloc\core\domain\exception;
 
 use Exception;
 

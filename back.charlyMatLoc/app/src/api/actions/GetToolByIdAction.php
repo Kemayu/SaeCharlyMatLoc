@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace charlyMatL\application\actions;
+namespace charlymatloc\api\actions;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use charlyMatL\core\application\ports\api\ServiceToolInterface;
-use charlyMatL\core\domain\exception\ToolNotFoundException;
+use charlymatloc\core\application\ports\api\ServiceToolInterface;
+use charlymatloc\core\domain\exception\ToolNotFoundException;
 use Slim\Exception\HttpNotFoundException;
-use charlyMatL\api\actions\AbstractAction;
+use charlymatloc\api\actions\AbstractAction;
 
 final class GetToolByIdAction extends AbstractAction
 {

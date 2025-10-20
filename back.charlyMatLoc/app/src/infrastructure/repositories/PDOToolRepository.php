@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace charlyMatL\infrastructure\repositories;
+namespace charlymatloc\infrastructure\repositories;
 
-use charlyMatL\core\application\ports\spi\repositoryInterfaces\ToolRepositoryInterface;
-use charlyMatL\core\domain\entities\tool\Tool;
-use charlyMatL\core\domain\entities\tool\PricingTier;
+use charlymatloc\core\application\ports\spi\repositoryInterfaces\ToolRepositoryInterface;
+use charlymatloc\core\domain\entities\tool\Tool;
+use charlymatloc\core\domain\entities\tool\PricingTier;
 use PDO;
 
 final class PDOToolRepository implements ToolRepositoryInterface

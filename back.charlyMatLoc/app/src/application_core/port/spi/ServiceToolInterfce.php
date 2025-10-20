@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace charlyMatL\core\application\ports\api;
+namespace charlymatloc\core\application\ports\api;
 
-use charlyMatL\core\dto\ToolDTO;
+use charlymatloc\core\dto\ToolDTO;
 
 interface ServiceToolInterface
 {
@@ -16,7 +16,6 @@ interface ServiceToolInterface
 
     /**
      * Récupère les détails d'un outil
-     * @throws ToolNotFoundException
      */
     public function getToolById(int $id): ToolDTO;
 

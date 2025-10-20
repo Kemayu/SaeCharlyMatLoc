@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace charlyMatL\core\application\ports\spi\repositoryInterfaces;
+namespace charlymatloc\core\application\ports\spi\repositoryInterfaces;
 
-use charlyMatL\core\domain\entities\tool\Tool;
+use charlymatloc\core\domain\entities\tool\Tool;
 
 interface ToolRepositoryInterface
 {

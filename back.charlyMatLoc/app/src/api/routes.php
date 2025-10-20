@@ -1,9 +1,10 @@
 <?php
 
+
 declare(strict_types=1);
 
-use charlyMatL\application\actions\GetCatalogAction;
-use charlyMatL\application\actions\GetToolDetailsAction;
+use charlymatloc\api\actions\GetCatalogAction;
+use charlymatloc\api\actions\GetToolByIdAction;
 use Slim\App;
 
 return function(App $app): App {
@@ -11,7 +12,7 @@ return function(App $app): App {
     $app->get('/tools', GetCatalogAction::class);
 
     // Route pour récupérer les détails d'un outil spécifique
-    $app->get('/tools/{id}', GetToolDetailsAction::class);
+    $app->get('/tools/{id}', GetToolByIdAction::class);
 
     return $app;
 };

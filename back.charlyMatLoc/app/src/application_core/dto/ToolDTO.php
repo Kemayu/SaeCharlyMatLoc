@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace charlyMatL\core\dto;
+namespace charlymatloc\core\dto;
 
-use charlyMatL\core\domain\entities\tool\Tool;
+use charlymatloc\core\domain\entities\tool\Tool;
 
 final class ToolDTO
 {

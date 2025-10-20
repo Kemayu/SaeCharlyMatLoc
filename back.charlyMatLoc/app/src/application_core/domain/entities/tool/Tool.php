@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace charlyMatL\core\domain\entities\tool;
+namespace charlymatloc\core\domain\entities\tool;
 
 final class Tool
 {

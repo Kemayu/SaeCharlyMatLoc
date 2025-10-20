@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace charlyMatL\application\actions;
+namespace charlymatloc\api\actions;
 
-use charlyMatL\api\actions\AbstractAction;
+use charlymatloc\api\actions\AbstractAction;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use charlyMatL\core\application\ports\api\ServiceToolInterface;
+use charlymatloc\core\application\ports\api\ServiceToolInterface;
 use Slim\Exception\HttpInternalServerErrorException;
 
 final class GetCatalogAction extends AbstractAction
@@ -19,7 +19,7 @@ final class GetCatalogAction extends AbstractAction
         $this->serviceTool = $serviceTool;
     }
 
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
             $tools = $this->serviceTool->getAllTools();
