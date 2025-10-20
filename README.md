@@ -1,4 +1,4 @@
 # SaeCharlyMatLoc
 
-Lien trello 
-https://trello.com/invite/b/68f5eb1edc0418188df77a69/ATTI5a344ce5604d76a19307f9f5a66ba77cB7E821E3/saecharlymatloc
+Lien Notion 
+https://www.notion.so/29276127066580ae9c89d67276761741?source=copy_link

@@ -1,0 +1,40 @@
+networks:
+  charlyMatLoc.net:
+    driver: bridge
+
+services:
+  
+  api.charlyMatLoc:
+    build:
+      context: build
+      dockerfile: 8.4-cli.Dockerfile
+    ports:
+      - '6080:80'
+    volumes:
+      - ./app:/var/php
+    working_dir: /var/php
+    networks:
+      - charlyMatLoc.net
+    depends_on:
+      - charlyMatLoc.db
+    command: sh -c "composer install && php -S 0.0.0.0:80 -t /var/php/public"
+
+
+  charlyMatLoc.db:
+    image: 'postgres:latest'
+    env_file: ./charlyMatLoc.env
+    ports:
+      - '5432:5432'
+    networks:
+      - charlyMatLoc.net
+    volumes:
+      - ./sql:/var/sql
+
+
+  adminer:
+    image: adminer
+    ports:
+      - '8080:8080'
+    networks:
+      - toubilib.net
+
