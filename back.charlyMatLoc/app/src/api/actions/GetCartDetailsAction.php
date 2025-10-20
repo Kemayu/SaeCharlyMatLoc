@@ -3,8 +3,8 @@
 namespace App\Infrastructure\Action;
 
 use App\ApplicationCore\Application\UseCases\GetCartDetails;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class GetCartDetailsAction
 {
@@ -15,13 +15,16 @@ class GetCartDetailsAction
         $this->getCartDetails = $getCartDetails;
     }
 
-    public function __invoke(Request $request): JsonResponse
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $cartDetails = $this->getCartDetails->execute();
 
-        return new JsonResponse([
+        $data = [
             'success' => true,
-            'data' => $cartDetails,
-        ]);
+            'data' => json_decode(json_encode($cartDetails), true),
+        ];
+
+        $response->getBody()->write(json_encode($data));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
 }

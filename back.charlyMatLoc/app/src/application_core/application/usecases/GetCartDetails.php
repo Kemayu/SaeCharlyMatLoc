@@ -3,6 +3,9 @@
 namespace App\ApplicationCore\Application\UseCases;
 
 use App\Domain\Entity\Cart;
+use App\ApplicationCore\Application\DTO\CartDTO;
+use App\ApplicationCore\Application\DTO\CartItemDTO;
+use App\ApplicationCore\Application\DTO\ToolInCartDTO;
 
 class GetCartDetails
 {
@@ -13,24 +16,16 @@ class GetCartDetails
         $this->cart = $cart;
     }
 
-    public function execute(): array
+    public function execute(): CartDTO
     {
         $items = $this->cart->getItems();
         $total = $this->cart->calculateTotal();
 
-        return [
-            'items' => array_map(function ($item) {
-                return [
-                    'tool' => [
-                        'id' => $item['tool']->getId(),
-                        'name' => $item['tool']->getName(),
-                        'description' => $item['tool']->getDescription(),
-                        'price_per_day' => $item['tool']->getPricingTiers()[0]['price_per_day'] ?? 0,
-                    ],
-                    'quantity' => $item['quantity'],
-                ];
-            }, $items),
-            'total' => $total,
-        ];
+        $itemDTOs = array_map(function ($item) {
+            $toolDTO = ToolInCartDTO::fromEntity($item['tool']);
+            return new CartItemDTO($toolDTO, $item['quantity']);
+        }, $items);
+
+        return new CartDTO($itemDTOs, $total);
     }
 }
