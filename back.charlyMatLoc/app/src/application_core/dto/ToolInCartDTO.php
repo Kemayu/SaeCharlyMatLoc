@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\ApplicationCore\Application\DTO;
+namespace charlymatloc\core\dto;
 
-use App\Domain\Entity\Tool;
+use charlymatloc\core\domain\entities\tool\Tool;
 
 final class ToolInCartDTO
 {

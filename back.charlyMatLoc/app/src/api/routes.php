@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use App\Infrastructure\Action\GetCartDetailsAction;
+use charlymatloc\api\actions\GetCartDetailsAction;
 use charlymatloc\api\actions\GetCatalogAction;
 use charlymatloc\api\actions\GetToolByIdAction;
 use Slim\App;

@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\ApplicationCore\Application\DTO;
+namespace charlymatloc\core\dto;
 
-use App\Domain\Entity\Cart;
 
 final class CartDTO
 {

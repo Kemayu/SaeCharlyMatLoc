@@ -1,6 +1,5 @@
 <?php
 
-use App\Infrastructure\Action\GetToolDetailsAction;
 use charlymatloc\api\actions\GetToolByIdAction;
 use charlymatloc\core\ports\spi\ServiceToolInterface;
 use Psr\Container\ContainerInterface;

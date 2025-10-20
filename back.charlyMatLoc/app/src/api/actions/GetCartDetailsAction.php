@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Infrastructure\Action;
+namespace charlymatloc\api\actions;
 
-use App\ApplicationCore\Application\UseCases\GetCartDetails;
+use charlymatloc\core\application\usecases\ServiceCart;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class GetCartDetailsAction
 {
-    private GetCartDetails $getCartDetails;
+    private ServiceCart $getCartDetails;
 
-    public function __construct(GetCartDetails $getCartDetails)
+    public function __construct(ServiceCart $getCartDetails)
     {
         $this->getCartDetails = $getCartDetails;
     }

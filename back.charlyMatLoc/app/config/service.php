@@ -1,7 +1,7 @@
 <?php
 
 use charlymatloc\core\ports\spi\ServiceToolInterface;
-use charlymatloc\infrastructure\repositories\PDOToolRepository;
+use charlymatloc\infra\repositories\PDOToolRepository;
 use Psr\Container\ContainerInterface;
 use charlymatloc\core\ports\spi\ToolRepositoryInterface;
 use charlymatloc\core\application\usecases\ServiceTool;

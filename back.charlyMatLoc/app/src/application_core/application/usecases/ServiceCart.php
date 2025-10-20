@@ -1,13 +1,13 @@
 <?php
 
-namespace App\ApplicationCore\Application\UseCases;
+namespace charlymatloc\core\application\usecases;
 
-use App\Domain\Entity\Cart;
-use App\ApplicationCore\Application\DTO\CartDTO;
-use App\ApplicationCore\Application\DTO\CartItemDTO;
-use App\ApplicationCore\Application\DTO\ToolInCartDTO;
+use charlymatloc\core\domain\entities\tool\Cart;
+use charlymatloc\core\dto\CartDTO;
+use charlymatloc\core\dto\CartItemDTO;
+use charlymatloc\core\dto\ToolInCartDTO;
 
-class GetCartDetails
+class ServiceCart
 {
     private Cart $cart;
 

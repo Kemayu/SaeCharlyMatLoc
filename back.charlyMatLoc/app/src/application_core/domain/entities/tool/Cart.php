@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Entity;
+namespace charlymatloc\core\domain\entities\tool;
 
 class Cart
 {
