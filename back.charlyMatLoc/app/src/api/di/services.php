@@ -6,6 +6,9 @@ use App\ApplicationCore\Port\ToolRepositoryInterface;
 use App\ApplicationCore\Application\UseCases\GetToolDetails;
 use App\Infrastructure\Action\GetToolDetailsAction;
 use PDO;
+use App\Domain\Entity\Cart;
+use App\ApplicationCore\Application\UseCases\GetCartDetails;
+use App\Infrastructure\Action\GetCartDetailsAction;
 
 return function (Container $container): void {
     // Database connection
@@ -31,5 +34,20 @@ return function (Container $container): void {
     // Action
     $container->set(GetToolDetailsAction::class, function (Container $c) {
         return new GetToolDetailsAction($c->get(GetToolDetails::class));
+    });
+
+    // Cart entity
+    $container->set(Cart::class, function () {
+        return new Cart();
+    });
+
+    // Use case for cart details
+    $container->set(GetCartDetails::class, function (Container $c) {
+        return new GetCartDetails($c->get(Cart::class));
+    });
+
+    // Action for cart details
+    $container->set(GetCartDetailsAction::class, function (Container $c) {
+        return new GetCartDetailsAction($c->get(GetCartDetails::class));
     });
 };
