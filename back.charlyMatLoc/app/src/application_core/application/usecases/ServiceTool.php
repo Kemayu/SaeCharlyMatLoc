@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace charlymatloc\core\application\usecases;
 
-use charlymatloc\core\application\ports\api\ServiceToolInterface;
-use charlymatloc\core\application\ports\spi\repositoryInterfaces\ToolRepositoryInterface;
 use charlymatloc\core\dto\ToolDTO;
 use charlymatloc\core\domain\exception\ToolNotFoundException;
+use charlymatloc\core\ports\spi\ServiceToolInterface;
+use charlymatloc\core\ports\spi\ToolRepositoryInterface;
 
 class ServiceTool implements ServiceToolInterface
 {

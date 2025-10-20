@@ -7,7 +7,7 @@ namespace charlymatloc\api\actions;
 use charlymatloc\api\actions\AbstractAction;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use charlymatloc\core\application\ports\api\ServiceToolInterface;
+use charlymatloc\core\ports\spi\ServiceToolInterface;
 use Slim\Exception\HttpInternalServerErrorException;
 
 final class GetCatalogAction extends AbstractAction

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace charlymatloc\infrastructure\repositories;
 
-use charlymatloc\core\application\ports\spi\repositoryInterfaces\ToolRepositoryInterface;
+use charlymatloc\core\ports\spi\ToolRepositoryInterface;
 use charlymatloc\core\domain\entities\tool\Tool;
 use charlymatloc\core\domain\entities\tool\PricingTier;
 use PDO;

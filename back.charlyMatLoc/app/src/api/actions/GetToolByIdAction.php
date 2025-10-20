@@ -6,7 +6,7 @@ namespace charlymatloc\api\actions;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use charlymatloc\core\application\ports\api\ServiceToolInterface;
+use charlymatloc\core\ports\spi\ServiceToolInterface;
 use charlymatloc\core\domain\exception\ToolNotFoundException;
 use Slim\Exception\HttpNotFoundException;
 use charlymatloc\api\actions\AbstractAction;

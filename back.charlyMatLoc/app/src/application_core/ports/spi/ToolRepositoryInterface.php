@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace charlymatloc\core\application\ports\spi\repositoryInterfaces;
+namespace charlymatloc\core\ports\spi;
 
 use charlymatloc\core\domain\entities\tool\Tool;
 
