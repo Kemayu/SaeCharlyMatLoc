@@ -1,0 +1,256 @@
+@import 'base/_colors';
+@import 'base/_variables';
+@import 'base/_reset';
+@import 'components/_buttons';
+@import 'components/_cards';
+
+// Variables
+$primary-color: #007bff;
+$primary-hover: #0056b3;
+$text-color: #333;
+$border-color: #ddd;
+$bg-light: #f8f9fa;
+$shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+// Reset and base
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: $text-color;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+// Layout
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+// Grid
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+// Cards
+.card {
+    background: white;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: $shadow;
+    transition: transform 0.2s;
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+}
+
+.card-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 1rem;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.card-text {
+    margin-bottom: 0.75rem;
+    color: #666;
+}
+
+.price {
+    font-weight: 600;
+    color: $primary-color;
+    font-size: 1.1rem;
+}
+
+// Buttons
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: all 0.2s;
+
+    &.btn-primary {
+        background: $primary-color;
+        color: white;
+
+        &:hover {
+            background: $primary-hover;
+        }
+    }
+}
+
+// Forms
+.filters {
+    margin-bottom: 2rem;
+}
+
+.select {
+    padding: 0.5rem;
+    border: 1px solid $border-color;
+    border-radius: 4px;
+    font-size: 1rem;
+    background: white;
+}
+
+// Typography
+h1,
+h2,
+h3 {
+    margin-bottom: 1rem;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+h2 {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+h3 {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+// Utilities
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.mt-4 {
+    margin-top: 1.5rem;
+}
+
+.mb-1 {
+    margin-bottom: 0.25rem;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+// Features list
+.features {
+    ul {
+        list-style: none;
+
+        li {
+            padding: 0.25rem 0;
+
+            &::before {
+                content: "✓ ";
+                color: $primary-color;
+                font-weight: bold;
+            }
+        }
+    }
+}
+
+// Navigation
+.header {
+    background: white;
+    border-bottom: 1px solid $border-color;
+    box-shadow: $shadow;
+}
+
+.nav {
+    .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+    }
+}
+
+.nav-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $primary-color;
+    margin: 0;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+    margin: 0;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: $text-color;
+    font-weight: 500;
+    transition: color 0.2s;
+
+    &:hover {
+        color: $primary-color;
+    }
+}
+
+#main-content {
+    flex: 1;
+}
+
+// Footer
+.footer {
+    background: $bg-light;
+    border-top: 1px solid $border-color;
+    margin-top: 3rem;
+    padding: 2rem 1rem;
+    text-align: center;
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    p {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 0.5rem;
+
+        &:first-child {
+            font-weight: 500;
+            color: $text-color;
+        }
+    }
+
+    .footer-link {
+        color: $primary-color;
+        text-decoration: none;
+        transition: color 0.2s;
+
+        &:hover {
+            color: $primary-hover;
+            text-decoration: underline;
+        }
+    }
+}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page de test</title>
+</head>
+
+<script>
+    const title = fetch("https://api.restful-api.dev/objects")
+    console.log(title);
+    fetch("https://api.restful-api.dev/objects")
+        .then(response => response.json())
+        .then(data => {
+            document.getElementsByClassName("titre")[0].textContent = data[0]?.name || "Titre par défaut";
+        })
+        .catch(error => console.error("Erreur lors de la récupération des données :", error));
+</script>
+<body>
+    <h1 class="titre">Init titre</h1>
+</body>
+</html>

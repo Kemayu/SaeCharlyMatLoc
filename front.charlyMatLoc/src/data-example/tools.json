@@ -1,0 +1,26 @@
+[
+    {
+        "categorie": "bricolage",
+        "nom": "Perceuse électrique",
+        "description": "Perceuse puissante pour tous travaux",
+        "price": 15,
+        "image_url": "assets/images/perceuse.jpg",
+        "stock_dispo": 5
+    },
+    {
+        "categorie": "jardinage",
+        "nom": "Tondeuse thermique",
+        "description": "Tondeuse performante pour grands terrains",
+        "price": 25,
+        "image_url": "assets/images/tondeuse.jpg",
+        "stock_dispo": 3
+    },
+    {
+        "categorie": "nettoyage",
+        "nom": "Nettoyeur haute pression",
+        "description": "Nettoyage efficace de toutes surfaces",
+        "price": 20,
+        "image_url": "assets/images/nettoyeur.jpg",
+        "stock_dispo": 2
+    }
+]

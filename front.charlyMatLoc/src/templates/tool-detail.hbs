@@ -1,0 +1,50 @@
+<section id="page-tool-details" class="page">
+    <div class="container">
+        {{#if tool}}
+        <div class="card">
+            <div class="card-body">
+                <a href="#" data-page="catalog" class="nav-link">← Retour au catalogue</a>
+                <h1>{{tool.nom}}</h1>
+            </div>
+
+            <div class="card-body">
+                <div class="card-img">
+                    <img src="{{tool.image}}" alt="{{tool.name}}" class="card-img-top" />
+                </div>
+
+                <div class="card-content">
+                    <div class="mb-4">
+                        <span class="card-text">Catégorie:</span>
+                        <span class="card-title">{{tool.categorie}}</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <h3>Description</h3>
+                        <p class="card-text">{{tool.description}}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h3>Tarif de location</h3>
+                        <div class="card-footer">
+                            <span class="price">{{tool.price}}€</span>
+                        </div>
+                    </div>
+
+                    {{!-- <div class="mt-4">
+                        <button class="btn btn-primary">Réserver</button>
+                        <button class="btn">Ajouter aux favoris</button>
+                    </div> --}}
+                </div>
+            </div>
+        </div>
+        {{else}}
+        <div class="card">
+            <div class="card-body">
+                <h2>Outil non trouvé</h2>
+                <p class="card-text">L'outil demandé n'existe pas ou n'est plus disponible.</p>
+                <a href="#" data-page="catalog" class="btn btn-primary">Retour au catalogue</a>
+            </div>
+        </div>
+        {{/if}}
+    </div>
+</section>

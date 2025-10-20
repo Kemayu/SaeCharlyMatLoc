@@ -22,8 +22,10 @@ composer.lock
 .env
 .env.local
 .env.*.local
+
 # Node modules
-/node_modules/
+*/node_modules
+
 # Build files
 /public/build/
 /public/hot
@@ -31,3 +33,5 @@ composer.lock
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+*/z_Docs/

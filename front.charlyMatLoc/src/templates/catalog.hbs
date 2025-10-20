@@ -1,0 +1,23 @@
+<section id="page-catalog" class="page">
+    <div class="container">
+        <h2>Catalogue des outils</h2>
+
+        <div id="tools-container" class="grid">
+            {{#each tools}}
+            <div class="card" data-id="{{id}}" data-category="{{categorie}}">
+                <img src="{{image_url}}" alt="{{nom}}" class="card-img">
+                <div class="card-content">
+                    <h3 class="card-title">{{nom}}</h3>
+                    <p class="card-text">{{description}}</p>
+                    <p class="price">{{price}}€/jour</p>
+                    {{!-- NE PAS SUPPRIMER (Pour les itérations suivantes) --}}
+                    {{!-- <p class="stock">Stock: {{stock_dispo}} disponible(s)</p>
+                    <button class="btn btn-primary" data-id="{{id}}" {{#unless stock_dispo}}disabled{{/unless}}>
+                        {{#if stock_dispo}}Ajouter au panier{{else}}Rupture de stock{{/if}}
+                    </button> --}}
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+</section>

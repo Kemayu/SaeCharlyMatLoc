@@ -1,0 +1,10 @@
+[
+    {
+        "categorie": "bricolage",
+        "nom": "Perceuse électrique",
+        "description": "Perceuse puissante pour tous travaux",
+        "price": 15,
+        "image_url": "assets/images/perceuse.jpg",
+        "stock_dispo": 5
+    }
+]

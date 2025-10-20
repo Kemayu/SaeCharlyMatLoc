@@ -1,0 +1,22 @@
+<section id="page-card" class="page">
+    <div class="container">
+        <h1>Panier</h1>
+
+        {{#if articles}}
+        <div class="card">
+            <div class="card-body">
+            </div>
+
+
+        {{else}}
+        <div class="card">
+            <div class="card-body">
+                <p class="card-text">Aucun article dans le panier.</p>
+                <a href="#" data-page="catalog" class="btn btn-primary">Retour au catalogue</a>
+            </div>
+        </div>
+        {{/if}}
+
+
+        </div>
+</section>
