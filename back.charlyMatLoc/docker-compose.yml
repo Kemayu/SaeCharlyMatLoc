@@ -1,10 +1,10 @@
 networks:
-  charlyMatLoc.net:
+  charlymatloc-net:
     driver: bridge
 
 services:
   
-  api.charlyMatLoc:
+  api-charlymatloc:
     build:
       context: build
       dockerfile: 8.4-cli.Dockerfile
@@ -14,19 +14,19 @@ services:
       - ./app:/var/php
     working_dir: /var/php
     networks:
-      - charlyMatLoc.net
+      - charlymatloc-net
     depends_on:
-      - charlyMatLoc.db
+      - charlymatloc-db
     command: sh -c "composer install && php -S 0.0.0.0:80 -t /var/php/public"
 
 
-  charlyMatLoc.db:
+  charlymatloc-db:
     image: 'postgres:latest'
     env_file: ./charlyMatLoc.env
     ports:
       - '5432:5432'
     networks:
-      - charlyMatLoc.net
+      - charlymatloc-net
     volumes:
       - ./sql:/var/sql
 
@@ -36,5 +36,5 @@ services:
     ports:
       - '8080:8080'
     networks:
-      - toubilib.net
+      - charlymatloc-net
 
