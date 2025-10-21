@@ -252,29 +252,41 @@ final class PDOCartRepository implements CartRepositoryInterface
             return $userId;
         }
 
-        if ($userId === 'guest') {
+        $aliases = [
+            'alice' => 'alice@example.com',
+            'bob' => 'bob@example.com', 
+            'admin' => 'admin@example.com',
+        ];
+
+        if (isset($aliases[$userId])) {
+            $email = $aliases[$userId];
+            
             $stmt = $this->pdo->prepare('SELECT user_id FROM users WHERE email = :email');
-            $stmt->execute(['email' => 'guest@charlymatloc.local']);
+            $stmt->execute(['email' => $email]);
             $existingUserId = $stmt->fetchColumn();
             
             if ($existingUserId) {
                 return $existingUserId;
             }
             
-            $stmt = $this->pdo->prepare('
-                INSERT INTO users (email, password_hash, role_code) 
-                VALUES (:email, :password_hash, 0)
-                RETURNING user_id
-            ');
+            if ($userId === 'guest') {
+                $stmt = $this->pdo->prepare('
+                    INSERT INTO users (email, password_hash, role_code) 
+                    VALUES (:email, :password_hash, 0)
+                    RETURNING user_id
+                ');
+                
+                $stmt->execute([
+                    'email' => $email,
+                    'password_hash' => password_hash('guest123', PASSWORD_DEFAULT)
+                ]);
+                
+                return $stmt->fetchColumn();
+            }
             
-            $stmt->execute([
-                'email' => 'guest@charlymatloc.local',
-                'password_hash' => password_hash('guest123', PASSWORD_DEFAULT)
-            ]);
-            
-            return $stmt->fetchColumn();
+            throw new \Exception("User with alias '$userId' not found in database");
         }
 
-        throw new \InvalidArgumentException("Invalid user ID: $userId");
+        throw new \InvalidArgumentException("Invalid user ID or alias: $userId");
     }
 }
