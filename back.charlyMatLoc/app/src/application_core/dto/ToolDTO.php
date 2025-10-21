@@ -44,23 +44,24 @@ final class ToolDTO
             $tool->getName(),
             $tool->getDescription(),
             $tool->getImageUrl(),
-            $tool->getCategory()->getId(),
-            $tool->getCategory()->getName(),
-            $tool->getAvailableQuantity(),
+            $tool->getCategory() ? $tool->getCategory()->getId() : 0,
+            $tool->getCategory() ? $tool->getCategory()->getName() : 'Non classé',
+            $tool->getAvailableQuantity(), // Correspond à la propriété 'stock'
             $tool->getPricingTiers()
         );
     }
 
     public function toArray(): array
     {
+        // Le frontend s'attend à 'tool_id' et 'stock'.
         return [
-            'id' => $this->id,
+            'tool_id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
             'image_url' => $this->imageUrl,
             'category_id' => $this->categoryId,
             'category_name' => $this->categoryName,
-            'available_quantity' => $this->availableQuantity,
+            'stock' => $this->availableQuantity,
             'pricing_tiers' => $this->pricingTiers,
         ];
     }
