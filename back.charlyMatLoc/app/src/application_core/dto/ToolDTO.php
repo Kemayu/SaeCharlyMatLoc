@@ -13,6 +13,7 @@ final class ToolDTO
     public string $description;
     public ?string $imageUrl;
     public int $categoryId;
+    public string $categoryName;
     public int $availableQuantity;
     public array $pricingTiers;
 
@@ -22,6 +23,7 @@ final class ToolDTO
         string $description,
         ?string $imageUrl,
         int $categoryId,
+        string $categoryName,
         int $availableQuantity,
         array $pricingTiers
     ) {
@@ -30,6 +32,7 @@ final class ToolDTO
         $this->description = $description;
         $this->imageUrl = $imageUrl;
         $this->categoryId = $categoryId;
+        $this->categoryName = $categoryName;
         $this->availableQuantity = $availableQuantity;
         $this->pricingTiers = $pricingTiers;
     }
@@ -41,7 +44,8 @@ final class ToolDTO
             $tool->getName(),
             $tool->getDescription(),
             $tool->getImageUrl(),
-            $tool->getCategoryId(),
+            $tool->getCategory()->getId(),
+            $tool->getCategory()->getName(),
             $tool->getAvailableQuantity(),
             $tool->getPricingTiers()
         );
@@ -55,6 +59,7 @@ final class ToolDTO
             'description' => $this->description,
             'image_url' => $this->imageUrl,
             'category_id' => $this->categoryId,
+            'category_name' => $this->categoryName,
             'available_quantity' => $this->availableQuantity,
             'pricing_tiers' => $this->pricingTiers,
         ];

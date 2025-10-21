@@ -31,8 +31,11 @@ final class PDOToolRepository implements ToolRepositoryInterface
                 t.name,
                 t.description,
                 t.image_url,
-                t.stock
+                t.stock,
+                c.category_id,
+                c.name AS category_name
             FROM tools t
+            LEFT JOIN categories c ON t.tool_category_id = c.category_id
             ORDER BY t.name
         ');
         
@@ -60,8 +63,11 @@ final class PDOToolRepository implements ToolRepositoryInterface
                 t.name,
                 t.description,
                 t.image_url,
-                t.stock
+                t.stock,
+                c.category_id,
+                c.name AS category_name
             FROM tools t
+            LEFT JOIN categories c ON t.tool_category_id = c.category_id
             WHERE t.tool_id = :id
         ');
         

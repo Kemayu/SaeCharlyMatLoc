@@ -7,7 +7,7 @@ namespace charlymatloc\core\domain\entities\tool;
 final class Tool
 {
     private ?int $id;
-    private int $categoryId;
+    private Category $category;
     private string $name;
     private string $description;
     private ?string $imageUrl;
@@ -16,7 +16,7 @@ final class Tool
 
     public function __construct(
         ?int $id,
-        int $categoryId,
+        Category $category,
         string $name,
         string $description,
         ?string $imageUrl = null,
@@ -24,7 +24,7 @@ final class Tool
         array $pricingTiers = []
     ) {
         $this->id = $id;
-        $this->categoryId = $categoryId;
+        $this->category = $category;
         $this->name = $name;
         $this->description = $description;
         $this->imageUrl = $imageUrl;
@@ -33,7 +33,7 @@ final class Tool
     }
 
     public function getId(): ?int { return $this->id; }
-    public function getCategoryId(): int { return $this->categoryId; }
+    public function getCategory(): Category { return $this->category; }
     public function getName(): string { return $this->name; }
     public function getDescription(): string { return $this->description; }
     public function getImageUrl(): ?string { return $this->imageUrl; }
@@ -55,7 +55,7 @@ final class Tool
     {
         return [
             'id' => $this->id,
-            'category_id' => $this->categoryId,
+            'category' => $this->category->toArray(),
             'name' => $this->name,
             'description' => $this->description,
             'image_url' => $this->imageUrl,
@@ -69,13 +69,17 @@ final class Tool
     {
         $id = isset($data['tool_id']) ? (int)$data['tool_id'] : (isset($data['id']) ? (int)$data['id'] : null);
         
-        $categoryId = (int)($data['tool_category_id'] ?? $data['category_id'] ?? $data['categoryId'] ?? 0);
+        // Create Category object from data
+        $category = new Category(
+            (int)($data['category_id'] ?? $data['tool_category_id'] ?? $data['categoryId'] ?? 0),
+            (string)($data['category_name'] ?? $data['categoryName'] ?? 'Unknown')
+        );
         
         $pricingTiers = $data['pricing_tiers'] ?? $data['pricingTiers'] ?? [];
 
         return new Tool(
             $id,
-            $categoryId,
+            $category,
             (string)($data['name'] ?? ''),
             (string)($data['description'] ?? ''),
             $data['image_url'] ?? $data['imageUrl'] ?? null,
