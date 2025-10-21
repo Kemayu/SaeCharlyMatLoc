@@ -15,7 +15,7 @@ return [
     Cors::class => function (ContainerInterface $c) {
 
         return new Cors(
-            allowedOrigins: ['http://localhost:6080'],  // ['http://localhost:6080']
+            allowedOrigins: ['http://localhost:3000'],  // ['http://localhost:3000']
             allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
             maxAge: 3600,  //1h
