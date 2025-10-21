@@ -5,6 +5,8 @@ use DI\ContainerBuilder;
 use Slim\Factory\AppFactory;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use charlymatloc\middlewares\Cors;
+
 
 $envFile = __DIR__ . '/.env';
 $envDist = __DIR__ . '/.env.dist';
@@ -27,8 +29,10 @@ $builder->addDefinitions(__DIR__ . '/service.php');
 $builder->addDefinitions(__DIR__ . '/api.php');
 
 $c = $builder->build();
+
 $app = AppFactory::createFromContainer($c);
 
+$app->add(Cors::class);
 $app->addBodyParsingMiddleware();
 $app->addRoutingMiddleware();
 

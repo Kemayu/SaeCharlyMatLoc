@@ -23,7 +23,8 @@
     "psr-4" : {
       "charlymatloc\\api\\" : "./src/api",
       "charlymatloc\\core\\" : "./src/application_core",
-      "charlymatloc\\infra\\" : "./src/infrastructure"
+      "charlymatloc\\infra\\" : "./src/infrastructure",
+      "charlymatloc\\middlewares\\" : "./src/middlewares"
     }
   }
 }

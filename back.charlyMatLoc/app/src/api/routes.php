@@ -3,6 +3,9 @@
 
 declare(strict_types=1);
 
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
+
 use charlymatloc\api\actions\AddToCartAction;
 use charlymatloc\api\actions\GetCartDetailsAction;
 use charlymatloc\api\actions\GetCatalogAction;
@@ -21,6 +24,13 @@ return function(App $app): App {
 
     // Route pour ajouter un outil au panier
     $app->post('/cart/add', AddToCartAction::class);
+
+    $app->options('/{routes:.+}', function (
+        ServerRequestInterface $request,
+        ResponseInterface $response
+    ): ResponseInterface {
+        return $response;
+    });
 
     return $app;
 };
