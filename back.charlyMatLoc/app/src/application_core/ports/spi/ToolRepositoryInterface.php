@@ -23,4 +23,9 @@ interface ToolRepositoryInterface
      * Compte le nombre total d'outils
      */
     public function count(): int;
+
+    /**
+     * Vérifie la disponibilité d'un outil pour une période donnée
+     */
+    public function isAvailableForPeriod(int $toolId, string $startDate, string $endDate, int $quantity = 1): bool;
 }
