@@ -1,6 +1,6 @@
 import { templateManager } from './templates.js';
 
-const API_BASE_URL = 'http://localhost:48211';
+const API_BASE_URL = 'http://docketu.iutnc.univ-lorraine.fr:48211';
 
 // Fonction de test simple
 window.testAddToCartBob = async function(toolId) {
@@ -13,16 +13,19 @@ window.testAddToCartBob = async function(toolId) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                tool_id: parseInt(toolId),
+                tool_id: 1,
                 start_date: testDate,
                 end_date: testDate,
                 quantity: 1,
-                user_id: 'bob'
-            })
+                user_id: 1
+            }),
+            credentials:'include'
         });
         
         if (response.ok) {
             alert('OK - Ajouté au panier!');
+            // Rediriger vers le panier après ajout
+            window.app.showPage('card');
         } else {
             const error = await response.text();
             alert('Erreur: ' + error);
@@ -31,6 +34,12 @@ window.testAddToCartBob = async function(toolId) {
         alert('Erreur fetch: ' + error.message);
     }
 };
+
+// Fonction pour afficher le panier de Bob
+window.showCartBob = async function() {
+    window.app.showPage('card');
+};
+
 
 class App {
     constructor() {
@@ -61,6 +70,23 @@ class App {
         } catch (error) {
             console.error('Erreur lors du chargement des outils:', error);
             this.tools = []; // Garde une valeur sûre en cas d'erreur
+        }
+    }
+
+    async loadCart() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/cart?user_id=bob`, {
+                credentials: 'include'
+            });
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP lors du chargement du panier: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log('Loaded cart:', data);
+            return data;
+        } catch (error) {
+            console.error('Erreur lors du chargement du panier:', error);
+            return { items: [], total: 0 };
         }
     }
     
@@ -118,7 +144,12 @@ class App {
                 }
                 break;
             case 'card':
-                data = { card: this.card };
+                const cartData = await this.loadCart();
+                data = { 
+                    articles: cartData.items || [],
+                    total: cartData.total || 0,
+                    user_id: 'bob'
+                };
                 break;
             default: // Gérer les pages inconnues ou non gérées
                 console.error(`Page inconnue ou non gérée: ${effectivePageName}`);
@@ -132,6 +163,60 @@ class App {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new App();
-    app.init();
+    window.app = new App();
+    window.app.init();
 });
+
+// Fonction pour supprimer un article du panier
+window.removeFromCart = async function(itemId) {
+    if (!confirm('Voulez-vous vraiment supprimer cet article ?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/cart/remove/${itemId}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        
+        if (response.ok) {
+            alert('Article supprimé du panier');
+            window.app.showPage('card');
+        } else {
+            const error = await response.text();
+            alert('Erreur: ' + error);
+        }
+    } catch (error) {
+        alert('Erreur: ' + error.message);
+    }
+};
+
+// Fonction pour valider le panier
+window.validateCart = async function() {
+    if (!confirm('Voulez-vous valider votre commande ?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/cart/validate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: 'bob'
+            }),
+            credentials: 'include'
+        });
+        
+        if (response.ok) {
+            alert('Commande validée avec succès !');
+            window.app.showPage('catalog');
+        } else {
+            const error = await response.text();
+            alert('Erreur: ' + error);
+        }
+    } catch (error) {
+        alert('Erreur: ' + error.message);
+    }
+};

@@ -7,12 +7,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Slim\Exception\HttpUnauthorizedException;
-use Slim\Routing\RouteContext;
-
 
 class Cors implements MiddlewareInterface
 {
-
     private array $allowedOrigins;
     private array $allowedMethods;
     private array $allowedHeaders;
@@ -36,7 +33,10 @@ class Cors implements MiddlewareInterface
         $this->strictMode = $strictMode;
     }
 
-    public function process(ServerRequestInterface $request,RequestHandlerInterface $handler): ResponseInterface {
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
+        $origin = $this->determineAllowedOrigin($request);
+
         // Mode strict : vérifier la présence du header Origin
         if ($this->strictMode && !$request->hasHeader('Origin')) {
             throw new HttpUnauthorizedException(
@@ -45,31 +45,39 @@ class Cors implements MiddlewareInterface
             );
         }
 
-        $origin = $this->determineAllowedOrigin($request);
+        // Gérer la requête préflight OPTIONS
+        if ($request->getMethod() === 'OPTIONS') {
+            $response = new \Slim\Psr7\Response();
+            return $this->addCorsHeaders($response, $request, $origin);
+        }
 
-        $response = $handler->handle($request);
+        try {
+            // Appel normal de la route
+            $response = $handler->handle($request);
+        } catch (\Throwable $e) {
+            // Même en cas d'erreur, renvoyer les headers CORS
+            $response = new \Slim\Psr7\Response(500);
+            $response->getBody()->write($e->getMessage());
+        }
 
-        $response = $this->addCorsHeaders($response, $request, $origin);
-
-        return $response;
+        return $this->addCorsHeaders($response, $request, $origin);
     }
 
-    public function __invoke(ServerRequestInterface $request,RequestHandlerInterface $handler): ResponseInterface {
+    public function __invoke(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
         return $this->process($request, $handler);
     }
 
     private function determineAllowedOrigin(ServerRequestInterface $request): string
     {
+        $requestOrigin = $request->hasHeader('Origin') ? $request->getHeaderLine('Origin') : '';
+
         // Si '*' est autorisé et pas de credentials, retourner '*'
         if (in_array('*', $this->allowedOrigins) && !$this->allowCredentials) {
             return '*';
         }
 
-        $requestOrigin = $request->hasHeader('Origin')
-            ? $request->getHeaderLine('Origin')
-            : '';
-
-        // Si '*' est dans la liste ou si l'origine est dans la liste
+        // Si l'origine de la requête est autorisée
         if (in_array('*', $this->allowedOrigins) || in_array($requestOrigin, $this->allowedOrigins)) {
             return $requestOrigin ?: '*';
         }
@@ -78,12 +86,10 @@ class Cors implements MiddlewareInterface
         return $this->allowedOrigins[0] ?? '*';
     }
 
-
-    private function addCorsHeaders(ResponseInterface $response,ServerRequestInterface $request,string $origin): ResponseInterface {
-        // Header obligatoire : origine autorisée
+    private function addCorsHeaders(ResponseInterface $response, ServerRequestInterface $request, string $origin): ResponseInterface
+    {
         $response = $response->withHeader('Access-Control-Allow-Origin', $origin);
 
-        // Si credentials autorisés
         if ($this->allowCredentials) {
             $response = $response->withHeader('Access-Control-Allow-Credentials', 'true');
         }

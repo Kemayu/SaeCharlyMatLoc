@@ -1,22 +1,181 @@
 <section id="page-card" class="page">
     <div class="container">
-        <h1>Panier</h1>
+        <div class="cart-header">
+            <h1>Panier de {{user_id}}</h1>
+            <a href="#" data-page="catalog" class="btn btn-secondary">Continuer mes achats</a>
+        </div>
 
         {{#if articles}}
-        <div class="card">
+        <div class="card cart-items">
             <div class="card-body">
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th>Outil</th>
+                            <th>Date de début</th>
+                            <th>Date de fin</th>
+                            <th>Durée</th>
+                            <th>Quantité</th>
+                            <th>Prix/jour</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each articles}}
+                        <tr>
+                            <td>
+                                <a href="#" data-page="tool-detail" data-id="{{tool_id}}">
+                                    {{tool_name}}
+                                </a>
+                            </td>
+                            <td>{{start_date}}</td>
+                            <td>{{end_date}}</td>
+                            <td>{{duration_days}} jour(s)</td>
+                            <td>{{quantity}}</td>
+                            <td>{{price_per_day}} €</td>
+                            <td><strong>{{total_price}} €</strong></td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="removeFromCart({{item_id}})">
+                                    Supprimer
+                                </button>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
             </div>
+        </div>
 
+        <div class="card cart-summary">
+            <div class="card-body">
+                <h2>Résumé de la commande</h2>
+                <p><strong>Nombre d'articles :</strong> {{articles.length}}</p>
+                <p class="total-price"><strong>Total :</strong> {{total}} €</p>
+                <button class="btn btn-primary btn-lg" onclick="validateCart()">
+                    Valider la commande
+                </button>
+            </div>
+        </div>
 
         {{else}}
-        <div class="card">
+        <div class="card empty-cart">
             <div class="card-body">
                 <p class="card-text">Aucun article dans le panier.</p>
                 <a href="#" data-page="catalog" class="btn btn-primary">Retour au catalogue</a>
             </div>
         </div>
         {{/if}}
-
-
-        </div>
+    </div>
 </section>
+
+<style>
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.cart-items {
+    margin-bottom: 20px;
+}
+
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cart-table th,
+.cart-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.cart-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.cart-table a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.cart-table a:hover {
+    text-decoration: underline;
+}
+
+.cart-summary {
+    background-color: #f8f9fa;
+}
+
+.cart-summary .card-body {
+    text-align: right;
+    padding: 30px;
+}
+
+.cart-summary h2 {
+    margin-bottom: 20px;
+    font-size: 1.5em;
+}
+
+.total-price {
+    font-size: 1.8em;
+    color: #007bff;
+    margin: 20px 0;
+}
+
+.empty-cart {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1em;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #545b62;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.875em;
+}
+
+.btn-lg {
+    padding: 15px 30px;
+    font-size: 1.2em;
+}
+</style>
