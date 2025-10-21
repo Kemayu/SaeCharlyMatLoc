@@ -8,6 +8,7 @@ use charlymatloc\core\ports\spi\CartRepositoryInterface;
 use charlymatloc\core\domain\entities\tool\Cart;
 use charlymatloc\core\domain\entities\tool\CartItem;
 use charlymatloc\core\domain\entities\tool\Tool;
+use charlymatloc\core\domain\entities\tool\Category;
 use PDO;
 
 final class PDOCartRepository implements CartRepositoryInterface
@@ -175,9 +176,12 @@ final class PDOCartRepository implements CartRepositoryInterface
                 t.name,
                 t.description,
                 t.image_url,
-                t.stock
+                t.stock,
+                c.category_id,
+                c.name AS category_name
             FROM cart_items ci
             JOIN tools t ON ci.tool_id = t.tool_id
+            LEFT JOIN categories c ON t.tool_category_id = c.category_id
             WHERE ci.cart_id = :cart_id
             ORDER BY ci.cart_item_id
         ');
@@ -187,18 +191,12 @@ final class PDOCartRepository implements CartRepositoryInterface
 
         $items = [];
         foreach ($itemsData as $itemData) {
-            // Créer l'outil avec ses paliers de prix
-            $tool = Tool::fromArray($itemData);
+            // Récupérer les paliers de prix pour cet outil
             $pricingTiers = $this->getPricingTiersForTool((int)$itemData['tool_id']);
-            $toolWithPricing = new Tool(
-                $tool->getId(),
-                $tool->getCategoryId(),
-                $tool->getName(),
-                $tool->getDescription(),
-                $tool->getImageUrl(),
-                $tool->getStock(),
-                $pricingTiers
-            );
+            $itemData['pricing_tiers'] = $pricingTiers;
+            
+            // Créer l'outil avec Tool::fromArray qui gère Category automatiquement
+            $tool = Tool::fromArray($itemData);
 
             $cartItem = new CartItem(
                 (int)$itemData['cart_item_id'],
@@ -207,7 +205,7 @@ final class PDOCartRepository implements CartRepositoryInterface
                 new \DateTime($itemData['start_date']),
                 new \DateTime($itemData['end_date']),
                 (int)$itemData['quantity'],
-                $toolWithPricing
+                $tool
             );
 
             $items[] = $cartItem;
@@ -256,6 +254,7 @@ final class PDOCartRepository implements CartRepositoryInterface
             'alice' => 'alice@example.com',
             'bob' => 'bob@example.com', 
             'admin' => 'admin@example.com',
+            'guest' => 'guest@example.com',
         ];
 
         if (isset($aliases[$userId])) {
