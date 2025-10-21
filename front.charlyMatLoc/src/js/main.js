@@ -1,9 +1,10 @@
 import { templateManager } from './templates.js';
 
+const API_BASE_URL = 'http://localhost:6080';
+
 class App {
     constructor() {
         this.tools = [];
-        this.tool_details = null;
         this.card = [];
     }
 
@@ -16,37 +17,20 @@ class App {
 
     async loadTools() {
         try {
-
-            // A remplacer par lefetch de l'api dnas un autre fichier !
-            const response = await fetch('../data-example/tools.json');
+            const response = await fetch(`${API_BASE_URL}/tools`, {
+                credentials: 'include'
+            });
             if (!response.ok) {
-                throw new Error(`Failed to load tools: ${response.status}`);
+                throw new Error(`Erreur HTTP lors du chargement des outils: ${response.status}`);
             }
-            this.tools = await response.json();
+            const data = await response.json();
+            // On extrait le tableau 'tools' de la réponse de l'API
+            this.tools = data.tools || [];
         } catch (error) {
-            console.error('Error loading tools:', error);
-            this.tools = [];
+            console.error('Erreur lors du chargement des outils:', error);
+            this.tools = []; // Garde une valeur sûre en cas d'erreur
         }
     }
-    async loadToolDetails() {
-        try {
-
-            // A remplacer par lefetch de l'api dnas un autre fichier !
-            const response = await fetch('../data-example/tool-details.json');
-            if (!response.ok) {
-                throw new Error(`Failed to load tool details: ${response.status}`);
-            }
-            this.tool_details = await response.json();
-        } catch (error) {
-            console.error('Error loading tool details:', error);
-            this.tool_details = null;
-        }
-    }
-
-    // A TERME, faire une méthod egénérale pour éviterla duplication de code ! (loaders)
-    // ===========
-    // ===========
-
     
     setupNavigation() {
         // Délégation d'événements pour gérer les liens dynamiques
@@ -54,7 +38,9 @@ class App {
             const pageLink = e.target.closest('[data-page]');
             if (pageLink) {
                 e.preventDefault();
-                this.showPage(pageLink.getAttribute('data-page'));
+                const pageName = pageLink.getAttribute('data-page');
+                const toolId = pageLink.dataset.id; // Récupère l'ID de l'outil si présent
+                this.showPage(pageName, toolId);
             }
         });
     }
@@ -72,22 +58,31 @@ class App {
                 data = { tools: this.tools };
                 break;
             case 'tool-detail':
-                if (toolId) {
-                    const tool = this.findToolById(toolId);
-                    data = { tool: tool };
-                } else {
-                    // A SUPPRIMER !
-                    await this.loadToolDetails();
-                    data = { tool: this.tool_details[0] };
-                    console.log(data);
+                if (!toolId) {
+                    console.error("Aucun ID d'outil fourni pour la page de détail.");
+                    await this.showPage('catalog'); // Redirige vers le catalogue
+                    return;
+                }
+                try {
+                    const response = await fetch(`${API_BASE_URL}/tools/${toolId}`, {
+                        credentials: 'include'
+                    });
+                    if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+                    const tool = await response.json();
+                    data = { tool };
+                } catch (error) {
+                    console.error(`Erreur lors du chargement du détail de l'outil ${toolId}:`, error);
+                    data = { error: "L'outil n'a pas pu être chargé." };
                 }
                 break;
-            case 'tool-detail':
+            case 'card':
                 data = { card: this.card };
                 break;
             case 'home':
             default:
-                data = {};
+                // Rediriger 'home' vers le catalogue par défaut
+                await this.showPage('catalog');
+                return; // Arrêter l'exécution pour éviter un double rendu
         }
 
         await templateManager.renderPage(pageName, data);
