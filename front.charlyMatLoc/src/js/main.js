@@ -1,6 +1,36 @@
 import { templateManager } from './templates.js';
 
-const API_BASE_URL = 'http://localhost:6080';
+const API_BASE_URL = 'http://localhost:48211';
+
+// Fonction de test simple
+window.testAddToCartBob = async function(toolId) {
+    const testDate = document.getElementById('test-date').value;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/cart/add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                tool_id: parseInt(toolId),
+                start_date: testDate,
+                end_date: testDate,
+                quantity: 1,
+                user_id: 'bob'
+            })
+        });
+        
+        if (response.ok) {
+            alert('OK - Ajouté au panier!');
+        } else {
+            const error = await response.text();
+            alert('Erreur: ' + error);
+        }
+    } catch (error) {
+        alert('Erreur fetch: ' + error.message);
+    }
+};
 
 class App {
     constructor() {
