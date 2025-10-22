@@ -29,11 +29,13 @@ final class ServiceCart implements ServiceCartInterface
 
     public function addToCart(AddToCartRequestDTO $request): CartDTO
     {
-        // Vérifier que l'outil existe
         $tool = $this->toolRepository->findById($request->toolId);
         if ($tool === null) {
             throw new ToolNotFoundException("Tool with ID {$request->toolId} not found.");
         }
+
+        $startDateTime = new \DateTime($request->startDate);
+        $endDateTime = new \DateTime($request->endDate);
 
         // Vérifier la disponibilité pour la période demandée
         $isAvailable = $this->toolRepository->isAvailableForPeriod(
@@ -47,27 +49,23 @@ final class ServiceCart implements ServiceCartInterface
             throw new \Exception("Tool is not available for the requested period.");
         }
 
-        // Récupérer ou créer le panier courant
         $cart = $this->cartRepository->findCurrentCartByUserId($request->userId);
         if ($cart === null) {
             $cart = $this->cartRepository->createCart($request->userId);
         }
 
-        // Créer l'item du panier
         $cartItem = new CartItem(
             null,
             $cart->getId(),
             $request->toolId,
-            $request->getStartDateAsDateTime(),
-            $request->getEndDateAsDateTime(),
+            $startDateTime,
+            $endDateTime,
             $request->quantity,
             $tool
         );
 
-        // Ajouter l'item au panier
         $this->cartRepository->addItem($cart->getId(), $cartItem);
 
-        // Retourner le panier mis à jour
         return $this->getCurrentCart($request->userId);
     }
 
@@ -76,7 +74,6 @@ final class ServiceCart implements ServiceCartInterface
         $cart = $this->cartRepository->findCurrentCartByUserId($userId);
         
         if ($cart === null) {
-            // Retourner un panier vide
             return new CartDTO([], 0.0);
         }
 
@@ -106,7 +103,7 @@ final class ServiceCart implements ServiceCartInterface
     {
         $cart = $this->cartRepository->findCurrentCartByUserId($userId);
         if ($cart === null) {
-            return true; // Panier déjà vide
+            return true; 
         }
 
         return $this->cartRepository->clearCart($cart->getId());

@@ -23,6 +23,12 @@ final class AddToCartAction extends AbstractAction
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         try {
+            $userId = $args['userId'] ?? null;
+
+            if ($userId === null) {
+                throw new HttpBadRequestException($request, 'userId is required in the route');
+            }
+
             $body = (string) $request->getBody();
             $data = json_decode($body, true);
 
@@ -32,6 +38,8 @@ final class AddToCartAction extends AbstractAction
 
             $this->validateRequest($request, $data);
 
+            // Ajouter le userId de la route au data
+            $data['user_id'] = $userId;
             $addToCartRequest = AddToCartRequestDTO::fromArray($data);
 
             $cartDTO = $this->cartService->addToCart($addToCartRequest);

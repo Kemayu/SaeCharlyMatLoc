@@ -19,7 +19,16 @@ final class GetCartDetailsAction extends AbstractAction
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
-        $userId = $request->getQueryParams()['user_id'] ?? 'guest';
+        $userId = $args['userId'] ?? null;
+
+        if ($userId === null) {
+            $response->getBody()->write(json_encode([
+                'error' => 'userId is required in the route'
+            ]));
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(400);
+        }
 
         $cartDTO = $this->cartService->getCurrentCart($userId);
 
