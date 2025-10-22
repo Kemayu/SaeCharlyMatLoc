@@ -121,6 +121,7 @@ class App {
                 e.preventDefault();
                 const newPage = parseInt(pageNav.dataset.pageNav, 10);
                 this.currentPage = newPage;
+                window.scrollTo(0, 0); // Scroll en haut de la nouvelle page
                 this.showPage('catalog'); // Re-render le catalogue à la nouvelle page
             }
         });
