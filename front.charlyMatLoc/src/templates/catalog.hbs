@@ -2,6 +2,16 @@
     <div class="container">
         <h2>Catalogue des outils</h2>
 
+        <div class="filters mb-4">
+            <label for="category-filter">Filtrer par catégorie :</label>
+            <select id="category-filter" class="select">
+                <option value="all">Toutes les catégories</option>
+                {{#each categories}}
+                <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+            </select>
+        </div>
+
         <div id="tools-container" class="grid">
             {{#each tools}} {{!-- La variable 'tools' vient de main.js --}}
             {{!-- On transforme la carte en lien avec data-page et data-id pour la navigation --}}

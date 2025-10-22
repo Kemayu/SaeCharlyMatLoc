@@ -45,6 +45,14 @@ class App {
     constructor() {
         this.tools = [];
         this.card = [];
+        // Mapping des catégories pour le filtre, correspondant à la BDD
+        this.categories = [
+            { id: 1, name: 'Petit outillage' },
+            { id: 2, name: 'Menuiserie' },
+            { id: 3, name: 'Peinture' },
+            { id: 4, name: 'Nettoyage' },
+            { id: 5, name: 'Jardinage' }
+        ];
     }
 
     async init() {
@@ -102,6 +110,13 @@ class App {
                 this.showPage(pageName, toolId);
             }
         });
+
+        // Délégation pour le filtre de catégorie
+        document.addEventListener('change', (e) => {
+            if (e.target.id === 'category-filter') {
+                this.filterToolsByCategory(e.target.value);
+            }
+        });
     }
 
     async showPage(pageName, toolId = null) {
@@ -120,7 +135,10 @@ class App {
         let data = {};
         switch (effectivePageName) {
             case 'catalog':
-                data = { tools: this.tools };
+                data = { 
+                    tools: this.tools,
+                    categories: this.categories
+                };
                 break;
             case 'tool-detail':
                 if (!toolId) {
@@ -159,6 +177,32 @@ class App {
         }
 
         await templateManager.renderPage(effectivePageName, data);
+    }
+
+    filterToolsByCategory(categoryId) {
+        let filteredTools;
+
+        if (categoryId === 'all') {
+            filteredTools = this.tools;
+        } else {
+            // Le DTO backend renvoie 'category_id', nous filtrons sur cette clé.
+            filteredTools = this.tools.filter(tool => tool.category_id == categoryId);
+        }
+
+        // Re-générer le HTML pour la grille des outils
+        const cardTemplateString = `
+            {{#each tools}}
+            <a href="#" class="card" data-page="tool-detail" data-id="{{tool_id}}">
+                <img src="{{image_url}}" alt="{{name}}" class="card-img">
+                <div class="card-content">
+                    <h3 class="card-title">{{name}}</h3>
+                    <p class="card-text">{{description}}</p>
+                    <p class="price">à partir de {{pricing_tiers.[0].price_per_day}}€/jour</p>
+                </div>
+            </a>
+            {{/each}}`;
+        const gridUpdater = Handlebars.compile(cardTemplateString);
+        document.getElementById('tools-container').innerHTML = gridUpdater({ tools: filteredTools });
     }
 }
 
