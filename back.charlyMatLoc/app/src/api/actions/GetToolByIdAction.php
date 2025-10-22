@@ -10,6 +10,7 @@ use charlymatloc\core\ports\spi\ServiceToolInterface;
 use charlymatloc\core\domain\exception\ToolNotFoundException;
 use Slim\Exception\HttpNotFoundException;
 use charlymatloc\api\actions\AbstractAction;
+use Slim\Exception\HttpInternalServerErrorException;
 
 final class GetToolByIdAction extends AbstractAction
 {

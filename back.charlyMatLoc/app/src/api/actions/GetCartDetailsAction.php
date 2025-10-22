@@ -20,6 +20,7 @@ final class GetCartDetailsAction extends AbstractAction
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
+        try{
         $userId = $args['userId'] ?? null;
 
         if ($userId === null) {
@@ -49,7 +50,7 @@ final class GetCartDetailsAction extends AbstractAction
             return $response
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(200);
-        } catch (\Exception $e) {
+        }catch (\Exception $e) {
             throw new HttpInternalServerErrorException($request, $e->getMessage());
         }
     }
