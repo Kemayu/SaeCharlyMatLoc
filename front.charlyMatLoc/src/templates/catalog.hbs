@@ -1,20 +1,27 @@
 <section id="page-catalog" class="page">
     <div class="container">
+        <h1>Louez du matériel de qualité, à mondre coût</h1>
         <h2>Catalogue des outils</h2>
 
-        <div id="tools-container" class="grid">
-            {{#each tools}} {{!-- La variable 'tools' vient de main.js --}}
-            {{!-- On transforme la carte en lien avec data-page et data-id pour la navigation --}}
+        <div id="tools-container" class="cards-grid">
+            {{#if tools}}
+            {{#each tools}}
             <a href="#" class="card" data-page="tool-detail" data-id="{{tool_id}}">
                 <img src="{{image_url}}" alt="{{name}}" class="card-img">
                 <div class="card-content">
                     <h3 class="card-title">{{name}}</h3>
                     <p class="card-text">{{description}}</p>
-                    {{!-- On affiche le prix du premier palier tarifaire --}}
                     <p class="price">à partir de {{pricing_tiers.[0].price_per_day}}€/jour</p>
                 </div>
             </a>
-            {{/each}} {{!-- Fin de la boucle --}}
+            {{/each}}
+            {{else}}
+            <div class="card card-static">
+                <div class="card-body">
+                    <p class="card-text">Aucun article dans le catalogue.</p>
+                </div>
+            </div>
+            {{/if}}
         </div>
     </div>
 </section>

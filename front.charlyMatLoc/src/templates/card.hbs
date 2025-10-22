@@ -1,22 +1,50 @@
 <section id="page-card" class="page">
     <div class="container">
-        <h1>Panier</h1>
+        <h1 class="page-title">Mon Panier</h1>
 
-        {{#if articles}}
-        <div class="card">
-            <div class="card-body">
+        {{#if cart.items}}
+        <div class="panier-grid">
+            <div class="panier-items">
+                <h2>Mes articles ({{cart.items_count}})</h2>
+                {{#each cart.items}}
+                <div class="panier-item">
+                    <div class="item-image">
+                        <img src="{{tool.image_url}}" alt="{{tool.name}}">
+                    </div>
+                    <div class="item-details">
+                        <h4>{{tool.name}}</h4>
+                        <p>{{tool.description}}</p>
+                        <p class="item-price">{{tool.price_per_day}}€ / jour</p>
+                    </div>
+                    <div class="item-quantity">
+                        <button type="button" class="btn btn-sm">-</button>
+                        <span>{{quantity}}</span>
+                        <button type="button" class="btn btn-sm">+</button>
+                    </div>
+                    <button class="btn btn-danger btn-sm">×</button>
+                </div>
+                {{/each}}
             </div>
 
-
+            <div class="panier-summary">
+                <h3>Résumé de la commande</h3>
+                <div class="summary-details">
+                    <p>Nombre d'articles: {{cart.items_count}}</p>
+                    <p class="summary-total">Total: {{cart.total}}€</p>
+                </div>
+                <button class="btn btn-primary btn-lg">Valider la commande</button>
+            </div>
+        </div>
         {{else}}
-        <div class="card">
-            <div class="card-body">
-                <p class="card-text">Aucun article dans le panier.</p>
-                <a href="#" data-page="catalog" class="btn btn-primary">Retour au catalogue</a>
+        <div class="empty-cart">
+            <div class="card card-static">
+                <div class="card-body">
+                    <h3>Votre panier est vide</h3>
+                    <p class="card-text">Découvrez nos outils disponibles à la location.</p>
+                    <a href="#" data-page="catalog" class="btn btn-primary">Voir le catalogue</a>
+                </div>
             </div>
         </div>
         {{/if}}
-
-
-        </div>
+    </div>
 </section>
