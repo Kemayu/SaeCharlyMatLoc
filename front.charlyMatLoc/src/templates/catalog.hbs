@@ -6,9 +6,9 @@
         <div class="filters mb-4">
             <label for="category-filter">Filtrer par catégorie :</label>
             <select id="category-filter" class="select">
-                <option value="all">Toutes les catégories</option>
+                <option value="all" {{#if isAllCategoriesSelected}}selected{{/if}}>Toutes les catégories</option>
                 {{#each categories}}
-                <option value="{{this.id}}">{{this.name}}</option>
+                <option value="{{this.id}}" {{#if this.isSelected}}selected{{/if}}>{{this.name}}</option>
                 {{/each}}
             </select>
         </div>
@@ -33,5 +33,23 @@
             </div>
             {{/if}}
         </div>
+
+        {{#if pagination}}
+        <nav class="pagination-nav" aria-label="Pagination">
+            <ul class="pagination">
+                {{#if pagination.hasPrev}}
+                <li><a href="#" class="pagination-link" data-page-nav="{{pagination.prevPage}}">Précédent</a></li>
+                {{/if}}
+
+                {{#each pagination.pages}}
+                <li><a href="#" class="pagination-link {{#if this.isCurrent}}active{{/if}}" data-page-nav="{{this.number}}">{{this.number}}</a></li>
+                {{/each}}
+
+                {{#if pagination.hasNext}}
+                <li><a href="#" class="pagination-link" data-page-nav="{{pagination.nextPage}}">Suivant</a></li>
+                {{/if}}
+            </ul>
+        </nav>
+        {{/if}}
     </div>
 </section>

@@ -44,7 +44,11 @@ window.showCartBob = async function() {
 class App {
     constructor() {
         this.tools = [];
+        this.filteredTools = []; // Outils actuellement affichés (après filtrage)
         this.card = [];
+        this.currentPage = 1;
+        this.itemsPerPage = 12; // Nombre d'outils par page
+        this.selectedCategoryId = 'all'; // Pour mémoriser le filtre
         // Mapping des catégories pour le filtre, correspondant à la BDD
         this.categories = [
             { id: 1, name: 'Petit outillage' },
@@ -57,8 +61,8 @@ class App {
 
     async init() {
         this.setupNavigation();
-        await this.loadTools();
         await templateManager.initializeTemplates();
+        await this.loadTools();
         // Démarrer directement sur le catalogue, car 'home' redirige vers 'catalog'
         await this.showPage('catalog');
     }
@@ -74,6 +78,7 @@ class App {
             const data = await response.json();
             // On extrait le tableau 'tools' de la réponse de l'API
             this.tools = data.tools || [];
+            this.filteredTools = this.tools; // Au début, tous les outils sont affichés
             console.log('Loaded tools (check tool_id):', this.tools); // DEBUG: Vérifier la présence de tool_id
         } catch (error) {
             console.error('Erreur lors du chargement des outils:', error);
@@ -109,6 +114,15 @@ class App {
                 console.log('Navigation click:', { pageName, toolId, target: e.target }); // DEBUG: Voir ce qui est cliqué
                 this.showPage(pageName, toolId);
             }
+
+            // Gérer les clics sur les liens de pagination
+            const pageNav = e.target.closest('[data-page-nav]');
+            if (pageNav) {
+                e.preventDefault();
+                const newPage = parseInt(pageNav.dataset.pageNav, 10);
+                this.currentPage = newPage;
+                this.showPage('catalog'); // Re-render le catalogue à la nouvelle page
+            }
         });
 
         // Délégation pour le filtre de catégorie
@@ -135,9 +149,37 @@ class App {
         let data = {};
         switch (effectivePageName) {
             case 'catalog':
+                const totalItems = this.filteredTools.length;
+                const totalPages = Math.ceil(totalItems / this.itemsPerPage);
+                const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+                const paginatedTools = this.filteredTools.slice(startIndex, startIndex + this.itemsPerPage);
+
+                const pages = [];
+                if (totalPages > 1) {
+                    for (let i = 1; i <= totalPages; i++) {
+                        pages.push({ number: i, isCurrent: i === this.currentPage });
+                    }
+                }
+
+                // Ajoute l'état de sélection aux catégories pour le template
+                const categoriesWithSelection = this.categories.map(category => ({
+                    ...category,
+                    isSelected: category.id == this.selectedCategoryId
+                }));
+
                 data = { 
-                    tools: this.tools,
-                    categories: this.categories
+                    tools: paginatedTools,
+                    categories: categoriesWithSelection,
+                    pagination: totalPages > 1 ? {
+                        totalPages: totalPages,
+                        currentPage: this.currentPage,
+                        pages: pages,
+                        hasPrev: this.currentPage > 1,
+                        prevPage: this.currentPage - 1,
+                        hasNext: this.currentPage < totalPages,
+                        nextPage: this.currentPage + 1
+                    } : null,
+                    isAllCategoriesSelected: this.selectedCategoryId === 'all'
                 };
                 break;
             case 'tool-detail':
@@ -180,29 +222,18 @@ class App {
     }
 
     filterToolsByCategory(categoryId) {
-        let filteredTools;
+        this.selectedCategoryId = categoryId;
 
         if (categoryId === 'all') {
-            filteredTools = this.tools;
+            this.filteredTools = this.tools;
         } else {
             // Le DTO backend renvoie 'category_id', nous filtrons sur cette clé.
-            filteredTools = this.tools.filter(tool => tool.category_id == categoryId);
+            this.filteredTools = this.tools.filter(tool => tool.category_id == categoryId);
         }
 
-        // Re-générer le HTML pour la grille des outils
-        const cardTemplateString = `
-            {{#each tools}}
-            <a href="#" class="card" data-page="tool-detail" data-id="{{tool_id}}">
-                <img src="{{image_url}}" alt="{{name}}" class="card-img">
-                <div class="card-content">
-                    <h3 class="card-title">{{name}}</h3>
-                    <p class="card-text">{{description}}</p>
-                    <p class="price">à partir de {{pricing_tiers.[0].price_per_day}}€/jour</p>
-                </div>
-            </a>
-            {{/each}}`;
-        const gridUpdater = Handlebars.compile(cardTemplateString);
-        document.getElementById('tools-container').innerHTML = gridUpdater({ tools: filteredTools });
+        // Réinitialiser à la première page après un filtre et ré-afficher
+        this.currentPage = 1;
+        this.showPage('catalog');
     }
 }
 

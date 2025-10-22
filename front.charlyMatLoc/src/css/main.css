@@ -179,6 +179,89 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  background-color: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(116, 74, 74, 0.08);
+}
+.filters label {
+  font-weight: 500;
+  color: #654321;
+  flex-shrink: 0;
+}
+
+.select {
+  display: inline-block;
+  min-width: 250px;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  font-size: 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #654321;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 16px 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.select:focus {
+  outline: none;
+  border-color: #8B4513;
+  box-shadow: 0 0 0 3px rgba(148, 14, 45, 0.15);
+}
+
+.pagination-nav {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  user-select: none;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(116, 74, 74, 0.08);
+}
+.pagination li {
+  margin: 0;
+}
+.pagination li:not(:first-child) .pagination-link {
+  border-left: 1px solid #e0e0e0;
+}
+.pagination .pagination-link {
+  display: block;
+  padding: 0.75rem 1.25rem;
+  text-decoration: none;
+  color: #333;
+  background-color: #fff;
+  transition: background-color 0.2s ease;
+}
+.pagination .pagination-link:hover {
+  background-color: #f7f7f7;
+}
+.pagination .pagination-link.active {
+  background-color: #940e2d;
+  color: #fff;
+  font-weight: 600;
+  cursor: default;
+  pointer-events: none;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   line-height: 1.6;
