@@ -79,8 +79,7 @@ final class PDOToolRepository implements ToolRepositoryInterface
         }
 
         // Récupération des paliers de tarification
-        $pricingTiers = $this->getPricingTiersForTool($id);
-        $toolData['pricing_tiers'] = $pricingTiers;
+        $toolData['pricing_tiers'] = $this->getPricingTiersForTool($id);
 
         return Tool::fromArray($toolData);
     }
