@@ -1,6 +1,6 @@
 import { templateManager } from './templates.js';
 
-const API_BASE_URL = 'http://docketu.iutnc.univ-lorraine.fr:48211';
+const API_BASE_URL = 'http://localhost:48211';
 
 // Fonction de test simple
 window.testAddToCartBob = async function(toolId) {
@@ -17,7 +17,7 @@ window.testAddToCartBob = async function(toolId) {
                 start_date: testDate,
                 end_date: testDate,
                 quantity: 1,
-                user_id: 1
+                user_id: "guest"
             }),
             credentials:'include'
         });
