@@ -212,6 +212,12 @@ class App {
                     user_id: 'bob'
                 };
                 break;
+            case 'login':
+                data = ""
+                break;
+            case 'register':
+                data = ""
+                break;
             default: // Gérer les pages inconnues ou non gérées
                 console.error(`Page inconnue ou non gérée: ${effectivePageName}`);
                 effectivePageName = 'catalog'; // Revenir au catalogue par défaut

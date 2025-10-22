@@ -127,15 +127,15 @@ body {
         border: 2px solid $pink-dark;
     }
 
-    .tool-image-container{
-        img{
+    .tool-image-container {
+        img {
             border-radius: $border-radius;
         }
     }
 }
 
-.tool-detail-header{
-      margin: 1em 0px;
+.tool-detail-header {
+    margin: 1em 0px;
 }
 
 .tool-title {
@@ -194,3 +194,67 @@ body {
         text-align: center;
     }
 }
+.login-page,
+.register-page {
+    max-width: 400px;
+    margin: 5rem auto;
+    background: $pink-light;
+    padding: $padding-lg;
+    border-radius: $border-radius;
+    border: 3px solid $pink-dark;
+    box-shadow: $shadow;
+
+    .page-title {
+        margin-bottom: $padding-lg;
+        font-size: 2rem;
+        font-weight: 700;
+        color: $brown-primary;
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: $padding-base;
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid $pink-dark;
+            border-radius: $border-radius;
+            font-size: 1rem;
+            background-color: #fff;
+        }
+    }
+
+    button {
+        width: 100%;
+        background-color: $brown-primary;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: $border-radius;
+        padding: 0.75rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+            background-color: darken($brown-primary, 10%);
+        }
+    }
+
+    .form-footer {
+        text-align: center;
+        margin-top: $padding-base;
+        font-size: 0.875rem;
+
+        .nav-link {
+            color: $brown-primary;
+            text-decoration: underline;
+
+            &:hover {
+                color: $brown-dark;
+            }
+        }
+    }
+}
+

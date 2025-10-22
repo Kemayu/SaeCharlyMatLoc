@@ -430,5 +430,68 @@ body {
     text-align: center;
   }
 }
+.login-page,
+.register-page {
+  max-width: 400px;
+  margin: 5rem auto;
+  background: #F5E6E0;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 3px solid #D4B5A8;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.login-page .page-title,
+.register-page .page-title {
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #8B4513;
+  text-align: center;
+}
+.login-page .form-group,
+.register-page .form-group {
+  margin-bottom: 1rem;
+}
+.login-page .form-group input,
+.register-page .form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #D4B5A8;
+  border-radius: 12px;
+  font-size: 1rem;
+  background-color: #fff;
+}
+.login-page button,
+.register-page button {
+  width: 100%;
+  background-color: #8B4513;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.login-page button:hover,
+.register-page button:hover {
+  background-color: rgb(94.1329113924, 46.7278481013, 12.8670886076);
+}
+.login-page .form-footer,
+.register-page .form-footer {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+.login-page .form-footer .nav-link,
+.register-page .form-footer .nav-link {
+  color: #8B4513;
+  text-decoration: underline;
+}
+.login-page .form-footer .nav-link:hover,
+.register-page .form-footer .nav-link:hover {
+  color: #654321;
+}
 
 /*# sourceMappingURL=main.css.map */
