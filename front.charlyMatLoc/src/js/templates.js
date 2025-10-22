@@ -11,6 +11,8 @@ class TemplateManager {
         await this.loadTemplateFromFile('catalog');
         await this.loadTemplateFromFile('tool-detail');
         await this.loadTemplateFromFile('card');
+        await this.loadTemplateFromFile('login');
+        await this.loadTemplateFromFile('register');
     }
 
     async loadTemplateFromFile(name) {

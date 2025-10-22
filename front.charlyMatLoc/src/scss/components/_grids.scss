@@ -1,0 +1,30 @@
+// Grilles
+
+.cards-grid {
+    display: grid;
+    gap: $padding-lg;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin-top: $padding-lg;
+}
+
+.panier-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: $padding-lg;
+    margin-top: $padding-lg;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tool-detail-content {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 3rem;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: $padding-lg;
+    }
+}

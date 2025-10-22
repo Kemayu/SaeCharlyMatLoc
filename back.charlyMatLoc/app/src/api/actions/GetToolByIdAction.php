@@ -38,6 +38,8 @@ final class GetToolByIdAction extends AbstractAction
 
         } catch (ToolNotFoundException $e) {
             throw new HttpNotFoundException($request, $e->getMessage());
+        } catch (\Exception $e) {
+            throw new HttpInternalServerErrorException($request, $e->getMessage());
         }
     }
 }

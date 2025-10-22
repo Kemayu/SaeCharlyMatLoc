@@ -5,44 +5,59 @@
             <a href="#" data-page="catalog" class="btn btn-primary">Retour au catalogue</a>
         </div>
     {{else}}
-        {{#with tool}}
-            <div class="tool-detail-header">
-                <a href="#" data-page="catalog" class="back-link">&larr; Retour au catalogue</a>
-                <h1>{{name}}</h1>
+    {{#with tool}}
+    <div class="tool-detail-header">
+        <a href="#" data-page="catalog" class="btn btn-primary">&larr; Retour au catalogue</a>
+    </div>
+
+    <div class="tool-detail-content">
+        <div class="tool-info">
+            <h1 class="tool-title">{{name}}</h1>
+            <div class="tool-category">{{category_name}}</div>
+            <div class="tool-price">Tarif de location : {{#if
+                pricing_tiers.[0]}}{{pricing_tiers.[0].price_per_day}}€{{else}}50€{{/if}}</div>
+            <hr>
+            <div class="tool-description">
+                <p>{{description}}</p>
+                <p><strong>Stock disponible :</strong> {{stock}}</p>
             </div>
 
-            <div class="tool-detail-content">
-                <div class="tool-image">
-                    <img src="{{image_url}}" alt="Image de {{name}}">
-                </div>
-                <div class="tool-info">
-                    <h2>Description</h2>
-                    <p>{{description}}</p>
+            {{#if pricing_tiers}}
+            <div class="pricing-details">
+                <h3>Tarifs de location</h3>
+                <ul class="pricing-list">
+                    {{#each pricing_tiers}}
+                    <li>
+                        <strong>{{price_per_day}} € / jour</strong>
+                        (pour {{min_duration_days}}{{#if max_duration_days}}-{{max_duration_days}} jour(s){{else}}+
+                        jours{{/if}})
+                    </li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{/if}}
+            
+        </div>
 
-                    <p><strong>Stock disponible :</strong> {{stock}}</p>
-
-                    <h2>Tarifs de location</h2>
-                    <ul class="pricing-list">
-                        {{#each pricing_tiers}}
-                            <li>
-                                <strong>{{price_per_day}} € / jour</strong> 
-                                (pour {{min_duration_days}}{{#if max_duration_days}}-{{max_duration_days}} jour(s){{else}}+ jours{{/if}})
-                            </li>
-                        {{/each}}
-                    </ul>
-
-                    <div style="border: 1px solid black; padding: 10px; margin-top: 20px;">
-                        <h3>Test Ajout Panier (Bob)</h3>
-                        <p>Date: <input type="date" id="test-date" value="2025-01-15"></p>
-                        <p>User: bob</p>
-                        <button onclick="testAddToCartBob({{id}})" style="background: rgb(18, 40, 183); color: white; padding: 5px 10px; margin-right: 10px;">
-                            Ajouter au panier
+        <div class="tool-image-container">
+            <div class="tool-image">
+                <img src="{{image_url}}" alt="Image de {{name}}">
+            </div>
+            <div style="border: 1px solid black; padding: 10px; margin-top: 20px;">
+                <h3>Test Ajout Panier (Bob)</h3>
+                <p>Date: <input type="date" id="test-date" value="2025-01-15"></p>
+                <p>User: bob</p>
+                <button onclick="testAddToCartBob({{id}})"
+                    style="background: rgb(18, 40, 183); color: white; padding: 5px 10px; margin-right: 10px;">
+                    Ajouter au panier
                         </button>
                         <button onclick="showCartBob()" style="background: rgb(40, 167, 69); color: white; padding: 5px 10px;">
                             Voir le panier
-                        </button>
-                    </div>
-                </div>
+                </button>
             </div>
-        {{/with}}
-        {{/if}}
+            <button class="btn btn-rent">Test Ajout Panier</button>
+        </div>
+    </div>
+    {{/with}}
+    {{/if}}
+</div>
