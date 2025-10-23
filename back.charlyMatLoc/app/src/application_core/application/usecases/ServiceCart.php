@@ -154,10 +154,14 @@ final class ServiceCart implements ServiceCartInterface
         // Vérifier que l'item appartient au panier de l'utilisateur
         $itemBelongsToUser = false;
         $toolId = null;
+        $startDate = null;
+        $endDate = null;
         foreach ($cart->getItems() as $item) {
             if ($item->getId() === $itemId) {
                 $itemBelongsToUser = true;
                 $toolId = $item->getToolId();
+                $startDate = $item->getStartDate()->format('Y-m-d');
+                $endDate = $item->getEndDate()->format('Y-m-d');
                 break;
             }
         }
@@ -166,14 +170,26 @@ final class ServiceCart implements ServiceCartInterface
             throw new \Exception("Item not found in user's cart");
         }
 
-        // Vérifier le stock disponible
+        // Vérifier le stock disponible pour la période de réservation
         $tool = $this->toolRepository->findById($toolId);
         if ($tool === null) {
             throw new \Exception("Tool not found");
         }
 
-        if ($tool->getStock() < $newQuantity) {
-            throw new \Exception("Insufficient stock. Available: {$tool->getStock()}");
+        // Vérifier la disponibilité en tenant compte des réservations existantes
+        $isAvailable = $this->toolRepository->isAvailableForPeriod(
+            $toolId,
+            $startDate,
+            $endDate,
+            $newQuantity
+        );
+
+        if (!$isAvailable) {
+            throw new \Exception(
+                "Insufficient stock available for the requested quantity ({$newQuantity}) " .
+                "during the period from {$startDate} to {$endDate}. " .
+                "Please check availability or reduce the quantity."
+            );
         }
 
         // Mettre à jour la quantité
