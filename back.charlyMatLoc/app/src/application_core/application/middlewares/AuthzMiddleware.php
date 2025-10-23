@@ -65,6 +65,11 @@ class AuthzMiddleware implements MiddlewareInterface
                 $user,
                 $routeArgs['itemId'] ?? ''
             ),
+
+            'cart.items.update' => $this->authzService->canRemoveFromCart(
+                $user,
+                $routeArgs['itemId'] ?? ''
+            ),
             
             // Routes des réservations
             'reservations.list' => $this->authzService->canAccessReservations(

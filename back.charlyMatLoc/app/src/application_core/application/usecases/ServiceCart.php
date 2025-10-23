@@ -37,6 +37,17 @@ final class ServiceCart implements ServiceCartInterface
 
         $startDateTime = new \DateTime($request->startDate);
         $endDateTime = new \DateTime($request->endDate);
+        $today = new \DateTime('today'); // Début de la journée (00:00:00)
+
+        // Vérifier que la date de début n'est pas dans le passé
+        if ($startDateTime < $today) {
+            throw new \Exception("Start date cannot be in the past. Must be today or later.");
+        }
+
+        // Vérifier que la date de fin n'est pas avant la date de début
+        if ($endDateTime < $startDateTime) {
+            throw new \Exception("End date cannot be before start date.");
+        }
 
         // Vérifier la disponibilité pour la période demandée
         $isAvailable = $this->toolRepository->isAvailableForPeriod(
@@ -57,6 +68,29 @@ final class ServiceCart implements ServiceCartInterface
         $cart = $this->cartRepository->findCurrentCartByUserId($request->userId);
         if ($cart === null) {
             $cart = $this->cartRepository->createCart($request->userId);
+        }
+        // Vérifier qu'il n'y a pas déjà le même outil avec des dates qui se chevauchent
+        foreach ($cart->getItems() as $existingItem) {
+            if ($existingItem->getToolId() === $request->toolId) {
+                $existingStart = $existingItem->getStartDate();
+                $existingEnd = $existingItem->getEndDate();
+
+                // Vérifier si les dates sont exactement les mêmes
+                if ($existingStart->format('Y-m-d') === $startDateTime->format('Y-m-d') &&
+                    $existingEnd->format('Y-m-d') === $endDateTime->format('Y-m-d')) {
+                    throw new \Exception("This tool is already in your cart for the same dates. Please update the quantity instead.");
+                }
+
+                // Vérifier s'il y a un chevauchement de dates
+                // Chevauchement si : (start1 <= end2) ET (end1 >= start2)
+                if ($startDateTime <= $existingEnd && $endDateTime >= $existingStart) {
+                    throw new \Exception(
+                        "This tool is already in your cart for overlapping dates " .
+                        "({$existingStart->format('Y-m-d')} to {$existingEnd->format('Y-m-d')}). " .
+                        "Please choose different dates or remove the existing item first."
+                    );
+                }
+            }
         }
 
         $cartItem = new CartItem(
@@ -101,6 +135,51 @@ final class ServiceCart implements ServiceCartInterface
         $startDateTime = new \DateTime($startDate);
         $this->cartRepository->removeItem($cart->getId(), $toolId, $startDateTime);
 
+        return $this->getCurrentCart($userId);
+    }
+
+     public function updateItemQuantity(string $userId, int $itemId, int $newQuantity): CartDTO
+    {
+        // Valider que la quantité est positive
+        if ($newQuantity < 1) {
+            throw new \Exception("Quantity must be at least 1");
+        }
+
+        // Vérifier que l'item existe et appartient bien à l'utilisateur
+        $cart = $this->cartRepository->findCurrentCartByUserId($userId);
+        if ($cart === null) {
+            throw new \Exception("No current cart found for user.");
+        }
+
+        // Vérifier que l'item appartient au panier de l'utilisateur
+        $itemBelongsToUser = false;
+        $toolId = null;
+        foreach ($cart->getItems() as $item) {
+            if ($item->getId() === $itemId) {
+                $itemBelongsToUser = true;
+                $toolId = $item->getToolId();
+                break;
+            }
+        }
+
+        if (!$itemBelongsToUser) {
+            throw new \Exception("Item not found in user's cart");
+        }
+
+        // Vérifier le stock disponible
+        $tool = $this->toolRepository->findById($toolId);
+        if ($tool === null) {
+            throw new \Exception("Tool not found");
+        }
+
+        if ($tool->getStock() < $newQuantity) {
+            throw new \Exception("Insufficient stock. Available: {$tool->getStock()}");
+        }
+
+        // Mettre à jour la quantité
+        $this->cartRepository->updateItemQuantity($itemId, $newQuantity);
+
+        // Retourner le panier mis à jour
         return $this->getCurrentCart($userId);
     }
 

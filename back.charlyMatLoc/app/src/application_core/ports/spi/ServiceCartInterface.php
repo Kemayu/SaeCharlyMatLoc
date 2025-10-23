@@ -24,6 +24,13 @@ interface ServiceCartInterface
      */
     public function removeFromCart(string $userId, int $toolId, string $startDate): CartDTO;
 
+     /**
+     * Met à jour la quantité d'un item dans le panier
+     * @throws \Exception si la quantité est invalide ou si le stock est insuffisant
+     */
+    public function updateItemQuantity(string $userId, int $itemId, int $newQuantity): CartDTO;
+
+
     /**
      * Vide entièrement le panier
      */

@@ -34,6 +34,12 @@ interface CartRepositoryInterface
      */
     public function removeItem(string $cartId, int $toolId, \DateTime $startDate): bool;
 
+     /**
+     * Met à jour la quantité d'un item dans le panier
+     * @return CartItem|null L'item mis à jour ou null si non trouvé
+     */
+    public function updateItemQuantity(int $itemId, int $newQuantity): ?CartItem;
+
     /**
      * Trouve un panier par son ID avec ses items
      */

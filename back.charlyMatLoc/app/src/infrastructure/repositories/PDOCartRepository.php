@@ -129,6 +129,80 @@ final class PDOCartRepository implements CartRepositoryInterface
         return $stmt->rowCount() > 0;
     }
 
+
+    public function updateItemQuantity(int $itemId, int $newQuantity): ?CartItem
+    {
+        // D'abord vérifier que l'item existe et récupérer ses informations
+        $stmt = $this->pdo->prepare('
+            SELECT cart_item_id, cart_id, tool_id, start_date, end_date, quantity
+            FROM cart_items
+            WHERE cart_item_id = :item_id
+        ');
+        
+        $stmt->execute(['item_id' => $itemId]);
+        $itemData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$itemData) {
+            return null;
+        }
+
+        // Mettre à jour la quantité
+        $updateStmt = $this->pdo->prepare('
+            UPDATE cart_items
+            SET quantity = :quantity
+            WHERE cart_item_id = :item_id
+        ');
+
+        $updateStmt->execute([
+            'quantity' => $newQuantity,
+            'item_id' => $itemId
+        ]);
+
+        // Récupérer l'item avec les détails de l'outil
+        $fullItemStmt = $this->pdo->prepare('
+            SELECT 
+                ci.cart_item_id,
+                ci.cart_id,
+                ci.tool_id,
+                ci.start_date,
+                ci.end_date,
+                ci.quantity,
+                t.tool_id,
+                t.tool_category_id,
+                t.name,
+                t.description,
+                t.image_url,
+                t.stock,
+                c.category_id,
+                c.name AS category_name
+            FROM cart_items ci
+            JOIN tools t ON ci.tool_id = t.tool_id
+            LEFT JOIN categories c ON t.tool_category_id = c.category_id
+            WHERE ci.cart_item_id = :item_id
+        ');
+        
+        $fullItemStmt->execute(['item_id' => $itemId]);
+        $fullItemData = $fullItemStmt->fetch(PDO::FETCH_ASSOC);
+
+        // Récupérer les paliers de prix
+        $pricingTiers = $this->getPricingTiersForTool((int)$fullItemData['tool_id']);
+        $fullItemData['pricing_tiers'] = $pricingTiers;
+        
+        // Créer l'outil
+        $tool = Tool::fromArray($fullItemData);
+
+        // Créer et retourner le CartItem
+        return new CartItem(
+            (int)$fullItemData['cart_item_id'],
+            $fullItemData['cart_id'],
+            (int)$fullItemData['tool_id'],
+            new \DateTime($fullItemData['start_date']),
+            new \DateTime($fullItemData['end_date']),
+            (int)$fullItemData['quantity'],
+            $tool
+        );
+    }
+
     public function findById(string $cartId): ?Cart
     {
         $stmt = $this->pdo->prepare('

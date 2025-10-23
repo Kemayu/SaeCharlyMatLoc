@@ -12,6 +12,7 @@ use charlymatloc\api\actions\RemoveFromCartAction;
 use charlymatloc\api\actions\CreateReservationAction;
 use charlymatloc\api\actions\GetReservationsAction;
 use charlymatloc\api\actions\GetReservationByIdAction;
+use charlymatloc\api\actions\UpdateCartItemQuantityAction;
 use charlymatloc\api\actions\SigninAction;
 use charlymatloc\core\application\middlewares\AuthnMiddleware;
 use charlymatloc\core\application\middlewares\AuthzMiddleware;
@@ -48,6 +49,12 @@ return function(App $app): App {
     // DELETE /users/{userId}/cart/items/{itemId} - Supprime un article du panier
     $app->delete('/users/{userId}/cart/items/{itemId}', RemoveFromCartAction::class)
         ->setName('cart.items.delete')
+        ->add(AuthzMiddleware::class)
+        ->add(AuthnMiddleware::class);
+
+    // PATCH /users/{userId}/cart/items/{itemId} - Modifie la quantité d'un article du panier
+    $app->patch('/users/{userId}/cart/items/{itemId}', UpdateCartItemQuantityAction::class)
+        ->setName('cart.items.update')
         ->add(AuthzMiddleware::class)
         ->add(AuthnMiddleware::class);
 
