@@ -244,48 +244,28 @@ final class PDOCartRepository implements CartRepositoryInterface
     }
 
 
+    /**
+     * S'assure que l'utilisateur existe ou est un UUID valide
+     * @param string $userId L'ID de l'utilisateur (UUID)
+     * @return string L'UUID de l'utilisateur
+     * @throws \InvalidArgumentException Si l'ID n'est pas un UUID valide
+     */
     private function ensureUserExists(string $userId): string
     {
-        if (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $userId)) {
-            return $userId;
+        // Vérifier que c'est un UUID valide
+        if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $userId)) {
+            throw new \InvalidArgumentException("Invalid user ID format. Expected UUID, got: $userId");
         }
 
-        $aliases = [
-            'alice' => 'alice@example.com',
-            'bob' => 'bob@example.com', 
-            'admin' => 'admin@example.com',
-            'guest' => 'guest@example.com',
-        ];
-
-        if (isset($aliases[$userId])) {
-            $email = $aliases[$userId];
-            
-            $stmt = $this->pdo->prepare('SELECT user_id FROM users WHERE email = :email');
-            $stmt->execute(['email' => $email]);
-            $existingUserId = $stmt->fetchColumn();
-            
-            if ($existingUserId) {
-                return $existingUserId;
-            }
-            
-            if ($userId === 'guest') {
-                $stmt = $this->pdo->prepare('
-                    INSERT INTO users (email, password_hash, role_code) 
-                    VALUES (:email, :password_hash, 0)
-                    RETURNING user_id
-                ');
-                
-                $stmt->execute([
-                    'email' => $email,
-                    'password_hash' => password_hash('guest123', PASSWORD_DEFAULT)
-                ]);
-                
-                return $stmt->fetchColumn();
-            }
-            
-            throw new \Exception("User with alias '$userId' not found in database");
+        // Vérifier que l'utilisateur existe dans la base de données
+        $stmt = $this->pdo->prepare('SELECT user_id FROM users WHERE user_id = :user_id');
+        $stmt->execute(['user_id' => $userId]);
+        $existingUserId = $stmt->fetchColumn();
+        
+        if (!$existingUserId) {
+            throw new \InvalidArgumentException("User with ID '$userId' not found in database");
         }
 
-        throw new \InvalidArgumentException("Invalid user ID or alias: $userId");
+        return $userId;
     }
 }

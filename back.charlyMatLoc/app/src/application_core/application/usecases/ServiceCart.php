@@ -13,6 +13,7 @@ use charlymatloc\core\dto\CartItemDTO;
 use charlymatloc\core\dto\ToolInCartDTO;
 use charlymatloc\core\domain\entities\tool\CartItem;
 use charlymatloc\core\domain\exception\ToolNotFoundException;
+use charlymatloc\core\domain\exception\ToolNotAvailableException;
 
 final class ServiceCart implements ServiceCartInterface
 {
@@ -46,7 +47,11 @@ final class ServiceCart implements ServiceCartInterface
         );
 
         if (!$isAvailable) {
-            throw new \Exception("Tool is not available for the requested period.");
+            throw new ToolNotAvailableException(
+                "Tool with ID {$request->toolId} is not available in the requested quantity ({$request->quantity}) " .
+                "for the period from {$request->startDate} to {$request->endDate}. " .
+                "Please check availability or choose different dates."
+            );
         }
 
         $cart = $this->cartRepository->findCurrentCartByUserId($request->userId);
