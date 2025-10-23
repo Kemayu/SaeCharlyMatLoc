@@ -2,14 +2,21 @@
     <h1 class="page-title">Se connecter</h1>
     <form class="login-form">
         <div class="form-group">
-            <input type="email" placeholder="email@email.fr" required>
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" name="email" placeholder="email@email.fr" required>
         </div>
         <div class="form-group">
-            <input type="password" placeholder="mot de passe" required>
+            <label for="login-password">Mot de passe</label>
+            <input type="password" id="login-password" name="password" placeholder="mot de passe" required>
         </div>
         <button type="submit" class="btn btn-primary">Se connecter</button>
     </form>
     <p class="form-footer">
-        Pas de compte ? <a href="/register" class="nav-link">S'inscrire</a>
+        Pas de compte ? <a href="#" data-page="register" class="nav-link">S'inscrire</a>
     </p>
+    <div class="test-credentials" style="margin-top: 2rem; padding: 1rem; background: #f0f0f0; border-radius: 8px;">
+        <p><strong>Comptes de test :</strong></p>
+        <p>Client : <code>client@charlymatloc.fr</code> / <code>Client123!</code></p>
+        <p>Admin : <code>admin@charlymatloc.fr</code> / <code>Admin456!</code></p>
+    </div>
 </div>

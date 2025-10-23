@@ -2,6 +2,88 @@ import { templateManager } from './templates.js';
 
 const API_BASE_URL = 'http://localhost:48211';
 
+// ============================================
+// GESTION DE L'AUTHENTIFICATION
+// ============================================
+
+class AuthManager {
+    constructor() {
+        this.token = localStorage.getItem('access_token');
+        this.refreshToken = localStorage.getItem('refresh_token');
+        this.user = JSON.parse(localStorage.getItem('user') || 'null');
+    }
+
+    isAuthenticated() {
+        return !!this.token && !!this.user;
+    }
+
+    getUser() {
+        return this.user;
+    }
+
+    getToken() {
+        return this.token;
+    }
+
+    async login(email, password) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/signin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Erreur de connexion');
+            }
+
+            const data = await response.json();
+            
+            // Stocker les informations d'authentification
+            this.token = data.access_token;
+            this.refreshToken = data.refresh_token;
+            this.user = data.profile;
+
+            localStorage.setItem('access_token', this.token);
+            localStorage.setItem('refresh_token', this.refreshToken);
+            localStorage.setItem('user', JSON.stringify(this.user));
+
+            return { success: true, user: this.user };
+        } catch (error) {
+            console.error('Erreur lors de la connexion:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    logout() {
+        this.token = null;
+        this.refreshToken = null;
+        this.user = null;
+        
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+    }
+
+    getAuthHeaders() {
+        if (!this.token) {
+            return {
+                'Content-Type': 'application/json'
+            };
+        }
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.token}`
+        };
+    }
+}
+
+// Instance globale de l'authentification
+const authManager = new AuthManager();
+
 // Fonction de test simple
 window.testAddToCartBob = async function(toolId) {
     const testDate = document.getElementById('test-date').value;
@@ -43,6 +125,7 @@ window.showCartBob = async function() {
 
 class App {
     constructor() {
+        this.authManager = authManager;
         this.tools = [];
         this.filteredTools = []; // Outils actuellement affichés (après filtrage)
         this.card = [];
@@ -63,8 +146,40 @@ class App {
         this.setupNavigation();
         await templateManager.initializeTemplates();
         await this.loadTools();
+        this.updateNavigationUI(); // Mettre à jour l'interface selon l'état de connexion
         // Démarrer directement sur le catalogue, car 'home' redirige vers 'catalog'
         await this.showPage('catalog');
+    }
+
+    updateNavigationUI() {
+        const navLinks = document.querySelector('.nav-links');
+        const isAuthenticated = this.authManager.isAuthenticated();
+        const user = this.authManager.getUser();
+
+        // Trouver ou créer la section d'authentification
+        let authSection = navLinks.querySelector('.auth-section');
+        if (!authSection) {
+            authSection = document.createElement('li');
+            authSection.className = 'auth-section';
+            navLinks.appendChild(authSection);
+        }
+
+        if (isAuthenticated) {
+            authSection.innerHTML = `
+                <span class="user-info" style="color: #333; margin-right: 10px;">👤 ${user.email}</span>
+                <a href="#" id="logout-btn" class="nav-link btn-logout">Déconnexion</a>
+            `;
+            // Masquer les liens de connexion/inscription
+            navLinks.querySelectorAll('[data-page="login"], [data-page="register"]').forEach(link => {
+                link.parentElement.style.display = 'none';
+            });
+        } else {
+            authSection.innerHTML = '';
+            // Afficher les liens de connexion/inscription
+            navLinks.querySelectorAll('[data-page="login"], [data-page="register"]').forEach(link => {
+                link.parentElement.style.display = '';
+            });
+        }
     }
 
     async loadTools() {
@@ -87,9 +202,15 @@ class App {
     }
 
     async loadCart() {
+        if (!this.authManager.isAuthenticated()) {
+            console.log('User not authenticated, returning empty cart');
+            return { cart: { items: [], total: 0 } };
+        }
+
         try {
-            const response = await fetch(`${API_BASE_URL}/cart?user_id=bob`, {
-                credentials: 'include'
+            const userId = this.authManager.getUser().id;
+            const response = await fetch(`${API_BASE_URL}/users/${userId}/cart`, {
+                headers: this.authManager.getAuthHeaders()
             });
             if (!response.ok) {
                 throw new Error(`Erreur HTTP lors du chargement du panier: ${response.status}`);
@@ -99,7 +220,7 @@ class App {
             return data;
         } catch (error) {
             console.error('Erreur lors du chargement du panier:', error);
-            return { items: [], total: 0 };
+            return { cart: { items: [], total: 0 } };
         }
     }
     
@@ -124,6 +245,12 @@ class App {
                 window.scrollTo(0, 0); // Scroll en haut de la nouvelle page
                 this.showPage('catalog'); // Re-render le catalogue à la nouvelle page
             }
+
+            // Gérer le bouton de déconnexion
+            if (e.target.closest('#logout-btn')) {
+                e.preventDefault();
+                this.handleLogout();
+            }
         });
 
         // Délégation pour le filtre de catégorie
@@ -132,6 +259,38 @@ class App {
                 this.filterToolsByCategory(e.target.value);
             }
         });
+
+        // Délégation pour le formulaire de connexion
+        document.addEventListener('submit', async (e) => {
+            if (e.target.classList.contains('login-form')) {
+                e.preventDefault();
+                await this.handleLogin(e.target);
+            }
+        });
+    }
+
+    async handleLogin(form) {
+        const email = form.querySelector('input[type="email"]').value;
+        const password = form.querySelector('input[type="password"]').value;
+
+        const result = await this.authManager.login(email, password);
+        
+        if (result.success) {
+            alert(`Bienvenue ${result.user.email} !`);
+            this.updateNavigationUI(); // Mettre à jour le menu
+            this.showPage('catalog');
+        } else {
+            alert(`Erreur de connexion: ${result.error}`);
+        }
+    }
+
+    handleLogout() {
+        if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
+            this.authManager.logout();
+            this.updateNavigationUI(); // Mettre à jour le menu
+            alert('Vous êtes déconnecté');
+            this.showPage('catalog');
+        }
     }
 
     async showPage(pageName, toolId = null) {
@@ -205,15 +364,25 @@ class App {
                 }
                 break;
             case 'card':
+                if (!this.authManager.isAuthenticated()) {
+                    alert('Vous devez être connecté pour voir votre panier');
+                    await this.showPage('login');
+                    return;
+                }
                 const cartData = await this.loadCart();
                 data = { 
-                    articles: cartData.items || [],
-                    total: cartData.total || 0,
-                    user_id: 'bob'
+                    articles: cartData.cart?.items || [],
+                    total: cartData.cart?.total || 0,
+                    user: this.authManager.getUser()
                 };
                 break;
             case 'login':
-                data = ""
+                if (this.authManager.isAuthenticated()) {
+                    // Si déjà connecté, rediriger vers le catalogue
+                    await this.showPage('catalog');
+                    return;
+                }
+                data = {};
                 break;
             case 'register':
                 data = ""
