@@ -13,16 +13,16 @@ use charlymatloc\core\ports\api\provider\AuthProviderInvalidAccessTokenException
 use charlymatloc\core\ports\api\jwt\JwtManagerInterface;
 use charlymatloc\core\ports\api\jwt\JwtManagerExpiredTokenException;
 use charlymatloc\core\ports\api\jwt\JwtManagerInvalidTokenException;
-use charlymatloc\core\ports\api\service\charlymatlocAuthnServiceInterface;
+use charlymatloc\core\ports\api\service\CharlymatlocAuthnServiceInterface;
 use charlymatloc\core\ports\api\service\AuthenticationFailedException;
 
 class JwtAuthProvider implements AuthProviderInterface
 {
-    private charlymatlocAuthnServiceInterface $authnService;
+    private CharlymatlocAuthnServiceInterface $authnService;
     private JwtManagerInterface $jwtManager;
 
     public function __construct(
-        charlymatlocAuthnServiceInterface $authnService,
+        CharlymatlocAuthnServiceInterface $authnService,
         JwtManagerInterface $jwtManager
     ) {
         $this->authnService = $authnService;

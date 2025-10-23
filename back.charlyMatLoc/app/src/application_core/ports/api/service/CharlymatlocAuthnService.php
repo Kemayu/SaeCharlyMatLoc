@@ -5,7 +5,7 @@ namespace charlymatloc\core\ports\api\service;
 
 use charlymatloc\core\ports\api\dto\CredentialsDTO;
 use charlymatloc\core\ports\api\dto\ProfileDTO;
-use charlymatloc\core\ports\api\service\charlymatlocAuthnServiceInterface;
+use charlymatloc\core\ports\api\service\CharlymatlocAuthnServiceInterface;
 use charlymatloc\core\ports\api\service\AuthenticationFailedException;
 use charlymatloc\core\ports\spi\AuthRepositoryInterface;
 
