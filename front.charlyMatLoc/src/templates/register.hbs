@@ -2,13 +2,13 @@
     <h1 class="page-title">S'inscrire</h1>
     <form class="register-form">
         <div class="form-group">
-            <input type="email" placeholder="email@email.fr" required>
+            <input type="email" name="email" placeholder="email@email.fr" autocomplete="email" required>
         </div>
         <div class="form-group">
-            <input type="password" placeholder="mot de passe" required>
+            <input type="password" name="password" placeholder="mot de passe (8 caractères minimum)" minlength="8" autocomplete="new-password" required>
         </div>
         <div class="form-group">
-            <input type="password" placeholder="confirmation du mot de passe" required>
+            <input type="password" name="password_confirmation" placeholder="confirmation du mot de passe" minlength="8" autocomplete="new-password" required>
         </div>
         <button type="submit" class="btn btn-primary">S'inscrire</button>
     </form>

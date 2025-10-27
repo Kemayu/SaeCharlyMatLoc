@@ -43,13 +43,12 @@ final class ServiceReservation implements ServiceReservationInterface
         // Convertir les items du panier en items de réservation
         foreach ($cartDTO->items as $cartItem) {
             $tool = $cartItem->tool;
-            
-            // Calculer la durée et le prix
-            $startDate = new \DateTime($tool->startDate ?? 'now');
-            $endDate = new \DateTime($tool->endDate ?? 'now');
-            $durationDays = max(1, $startDate->diff($endDate)->days);
-            $unitPrice = $tool->pricePerDay ?? 0.0;
-            $totalPrice = $unitPrice * $cartItem->quantity * $durationDays;
+
+            $startDate = new \DateTime($cartItem->startDate);
+            $endDate = new \DateTime($cartItem->endDate);
+            $durationDays = max(1, $cartItem->durationDays);
+            $unitPrice = $cartItem->pricePerDay;
+            $totalPrice = $cartItem->totalPrice;
 
             $reservationItem = new ReservationItem(
                 null,

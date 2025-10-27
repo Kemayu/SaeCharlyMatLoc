@@ -20,4 +20,21 @@ final class CartDTO
         $this->items = $items;
         $this->total = $total;
     }
+
+    public function getItemsCount(): int
+    {
+        return count($this->items);
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'items_count' => $this->getItemsCount(),
+            'total' => $this->total,
+            'items' => array_map(
+                fn(CartItemDTO $item) => $item->toArray(),
+                $this->items
+            ),
+        ];
+    }
 }

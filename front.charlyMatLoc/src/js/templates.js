@@ -13,6 +13,7 @@ class TemplateManager {
         await this.loadTemplateFromFile('card');
         await this.loadTemplateFromFile('login');
         await this.loadTemplateFromFile('register');
+        await this.loadTemplateFromFile('reservations');
     }
 
     async loadTemplateFromFile(name) {

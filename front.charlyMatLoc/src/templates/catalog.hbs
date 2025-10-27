@@ -4,13 +4,25 @@
         <h2>Catalogue des outils</h2>
 
         <div class="filters mb-4">
-            <label for="category-filter">Filtrer par catégorie :</label>
-            <select id="category-filter" class="select">
-                <option value="all" {{#if isAllCategoriesSelected}}selected{{/if}}>Toutes les catégories</option>
-                {{#each categories}}
-                <option value="{{this.id}}" {{#if this.isSelected}}selected{{/if}}>{{this.name}}</option>
-                {{/each}}
-            </select>
+            <div class="filter-group">
+                <label for="category-filter">Filtrer par catégorie :</label>
+                <select id="category-filter" class="select">
+                    <option value="all" {{#if isAllCategoriesSelected}}selected{{/if}}>Toutes les catégories</option>
+                    {{#each categories}}
+                    <option value="{{this.id}}" {{#if this.isSelected}}selected{{/if}}>{{this.name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <div class="filter-group availability-group">
+                <label for="availability-start">Disponible du</label>
+                <input type="date" id="availability-start" value="{{selectedStartDate}}">
+                <label for="availability-end">au</label>
+                <input type="date" id="availability-end" value="{{selectedEndDate}}">
+                <button type="button" class="btn btn-secondary btn-sm" id="apply-availability-filter">Appliquer</button>
+                {{#if hasAvailabilityFilter}}
+                <button type="button" class="btn btn-link btn-sm" id="clear-availability-filter">Réinitialiser</button>
+                {{/if}}
+            </div>
         </div>
 
         <div id="tools-container" class="cards-grid">

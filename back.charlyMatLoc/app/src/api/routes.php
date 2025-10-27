@@ -12,8 +12,10 @@ use charlymatloc\api\actions\RemoveFromCartAction;
 use charlymatloc\api\actions\CreateReservationAction;
 use charlymatloc\api\actions\GetReservationsAction;
 use charlymatloc\api\actions\GetReservationByIdAction;
+use charlymatloc\api\actions\ProcessPaymentAction;
 use charlymatloc\api\actions\UpdateCartItemQuantityAction;
 use charlymatloc\api\actions\SigninAction;
+use charlymatloc\api\actions\RegisterAction;
 use charlymatloc\core\application\middlewares\AuthnMiddleware;
 use charlymatloc\core\application\middlewares\AuthzMiddleware;
 use Slim\App;
@@ -23,6 +25,9 @@ return function(App $app): App {
     // ========== AUTHENTIFICATION ==========
     $app->post('/auth/signin', SigninAction::class)
         ->setName('auth.signin');
+
+    $app->post('/auth/signup', RegisterAction::class)
+        ->setName('auth.signup');
 
     // ========== CATALOGUE (Public - Itération 1) ==========
     // GET /tools - Liste tous les outils du catalogue
@@ -68,6 +73,12 @@ return function(App $app): App {
     // POST /users/{userId}/reservations - Crée une réservation (depuis le panier)
     $app->post('/users/{userId}/reservations', CreateReservationAction::class)
         ->setName('reservations.create')
+        ->add(AuthzMiddleware::class)
+        ->add(AuthnMiddleware::class);
+
+    // POST /users/{userId}/reservations/{reservationId}/payments - Simule un paiement pour une réservation
+    $app->post('/users/{userId}/reservations/{reservationId}/payments', ProcessPaymentAction::class)
+        ->setName('payments.create')
         ->add(AuthzMiddleware::class)
         ->add(AuthnMiddleware::class);
 

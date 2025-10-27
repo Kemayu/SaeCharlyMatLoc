@@ -56,4 +56,52 @@ class ServiceTool implements ServiceToolInterface
     {
         return $this->toolRepository->count();
     }
+
+    /**
+     * @return ToolDTO[]
+     */
+    public function searchTools(?int $categoryId = null, ?string $startDate = null, ?string $endDate = null): array
+    {
+        $tools = $this->toolRepository->findAll();
+
+        $filtered = [];
+        foreach ($tools as $tool) {
+            if ($categoryId !== null) {
+                $category = $tool->getCategory();
+                if ($category === null || $category->getId() !== $categoryId) {
+                    continue;
+                }
+            }
+
+            if ($startDate !== null) {
+                $end = $endDate ?? $startDate;
+
+                if (!$this->validateDate($startDate) || !$this->validateDate($end)) {
+                    throw new \InvalidArgumentException('Invalid date format. Expected Y-m-d.');
+                }
+
+                if ($end < $startDate) {
+                    throw new \InvalidArgumentException('End date must be after start date.');
+                }
+
+                if ($tool->getId() === null) {
+                    continue;
+                }
+
+                if (!$this->toolRepository->isAvailableForPeriod($tool->getId(), $startDate, $end, 1)) {
+                    continue;
+                }
+            }
+
+            $filtered[] = ToolDTO::fromEntity($tool);
+        }
+
+        return $filtered;
+    }
+
+    private function validateDate(string $date): bool
+    {
+        $dt = \DateTime::createFromFormat('Y-m-d', $date);
+        return $dt !== false && $dt->format('Y-m-d') === $date;
+    }
 }

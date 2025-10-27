@@ -39,6 +39,31 @@ class CharlymatlocAuthnService implements CharlymatlocAuthnServiceInterface
 
     public function register(CredentialsDTO $credentials, int $role): ProfileDTO
     {
-        throw new \RuntimeException('Registration not yet implemented');
+        $email = strtolower(trim($credentials->email));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new \InvalidArgumentException('Invalid email address');
+        }
+
+        if (mb_strlen($credentials->password) < 8) {
+            throw new \InvalidArgumentException('Password must be at least 8 characters long');
+        }
+
+        $existingUser = $this->authRepository->findUserByEmail($email);
+        if ($existingUser !== null) {
+            throw new \RuntimeException('Email already in use');
+        }
+
+        $passwordHash = password_hash($credentials->password, PASSWORD_BCRYPT);
+        if ($passwordHash === false) {
+            throw new \RuntimeException('Unable to hash password');
+        }
+
+        $userData = $this->authRepository->createUser($email, $passwordHash, $role);
+
+        return new ProfileDTO(
+            $userData['id'],
+            $userData['email'],
+            (int)$userData['role']
+        );
     }
 }

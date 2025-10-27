@@ -113,17 +113,16 @@ final class PDOCartRepository implements CartRepositoryInterface
         );
     }
 
-    public function removeItem(string $cartId, int $toolId, \DateTime $startDate): bool
+    public function removeItemById(string $cartId, int $itemId): bool
     {
         $stmt = $this->pdo->prepare('
             DELETE FROM cart_items 
-            WHERE cart_id = :cart_id AND tool_id = :tool_id AND start_date = :start_date
+            WHERE cart_id = :cart_id AND cart_item_id = :item_id
         ');
         
         $stmt->execute([
             'cart_id' => $cartId,
-            'tool_id' => $toolId,
-            'start_date' => $startDate->format('Y-m-d')
+            'item_id' => $itemId
         ]);
 
         return $stmt->rowCount() > 0;

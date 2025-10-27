@@ -22,7 +22,7 @@ interface ServiceCartInterface
     /**
      * Supprime un item du panier
      */
-    public function removeFromCart(string $userId, int $toolId, string $startDate): CartDTO;
+    public function removeFromCart(string $userId, int $itemId): CartDTO;
 
      /**
      * Met à jour la quantité d'un item dans le panier

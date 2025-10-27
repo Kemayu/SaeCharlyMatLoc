@@ -40,4 +40,9 @@ interface AuthzServiceInterface
      * Vérifie si l'utilisateur peut accéder à une réservation spécifique
      */
     public function canAccessReservation(ProfileDTO $user, string $reservationId): bool;
+
+    /**
+     * Vérifie si l'utilisateur peut déclencher un paiement pour une réservation
+     */
+    public function canProcessPayment(ProfileDTO $user, string $reservationId): bool;
 }

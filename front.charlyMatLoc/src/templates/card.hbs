@@ -1,11 +1,11 @@
 <section id="page-card" class="page">
     <div class="container">
         <div class="cart-header">
-            <h1>Panier de {{user_id}}</h1>
+            <h1>Panier de {{#if user}}{{user.email}}{{else}}vous{{/if}}</h1>
             <a href="#" data-page="catalog" class="btn btn-secondary">Continuer mes achats</a>
         </div>
 
-        {{#if articles}}
+        {{#if cart.items_count}}
         <div class="card cart-items">
             <div class="card-body">
                 <table class="cart-table">
@@ -22,21 +22,29 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{#each articles}}
+                        {{#each cart.items}}
                         <tr>
                             <td>
-                                <a href="#" data-page="tool-detail" data-id="{{tool_id}}">
-                                    {{tool_name}}
+                                <a href="#" data-page="tool-detail" data-id="{{this.tool.id}}">
+                                    {{this.tool.name}}
                                 </a>
                             </td>
-                            <td>{{start_date}}</td>
-                            <td>{{end_date}}</td>
-                            <td>{{duration_days}} jour(s)</td>
-                            <td>{{quantity}}</td>
-                            <td>{{price_per_day}} €</td>
-                            <td><strong>{{total_price}} €</strong></td>
+                            <td>{{this.start_date}}</td>
+                            <td>{{this.end_date}}</td>
+                            <td>{{this.duration_days}} jour(s)</td>
                             <td>
-                                <button class="btn btn-danger btn-sm" onclick="removeFromCart({{item_id}})">
+                                <input
+                                    type="number"
+                                    class="cart-quantity-input"
+                                    data-item-id="{{this.id}}"
+                                    value="{{this.quantity}}"
+                                    min="1"
+                                >
+                            </td>
+                            <td>{{this.price_per_day}} €</td>
+                            <td><strong>{{this.total_price}} €</strong></td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" data-remove-item="{{this.id}}">
                                     Supprimer
                                 </button>
                             </td>
@@ -50,9 +58,9 @@
         <div class="card cart-summary">
             <div class="card-body">
                 <h2>Résumé de la commande</h2>
-                <p><strong>Nombre d'articles :</strong> {{articles.length}}</p>
-                <p class="total-price"><strong>Total :</strong> {{total}} €</p>
-                <button class="btn btn-primary btn-lg" onclick="validateCart()">
+                <p><strong>Nombre d'articles :</strong> {{cart.items_count}}</p>
+                <p class="total-price"><strong>Total :</strong> {{cart.total}} €</p>
+                <button class="btn btn-primary btn-lg" data-checkout>
                     Valider la commande
                 </button>
             </div>
@@ -178,4 +186,5 @@
     padding: 15px 30px;
     font-size: 1.2em;
 }
+
 </style>

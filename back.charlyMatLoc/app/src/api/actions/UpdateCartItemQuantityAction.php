@@ -35,11 +35,18 @@ final class UpdateCartItemQuantityAction
 
         // Récupérer la nouvelle quantité depuis le body
         $body = json_decode($request->getBody()->getContents(), true);
-        $newQuantity = $body['quantity'] ?? null;
-
-        if ($newQuantity === null || !is_int($newQuantity)) {
+        if (!is_array($body)) {
             $response->getBody()->write(json_encode([
-                'error' => 'Invalid quantity. Must be an integer.'
+                'error' => 'Invalid JSON body.'
+            ]));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+
+        $newQuantity = isset($body['quantity']) ? (int)$body['quantity'] : null;
+
+        if ($newQuantity === null || $newQuantity < 1) {
+            $response->getBody()->write(json_encode([
+                'error' => 'Invalid quantity. Must be a positive integer.'
             ]));
             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
         }
@@ -50,15 +57,8 @@ final class UpdateCartItemQuantityAction
 
             // Retourner le panier mis à jour
             $data = [
-                'type' => 'resource',
-                'cart' => [
-                    'items_count' => count($cartDTO->items),
-                    'total' => $cartDTO->total,
-                    'items' => array_map(fn($item) => [
-                        'tool' => $item->tool,
-                        'quantity' => $item->quantity
-                    ], $cartDTO->items)
-                ]
+                'success' => true,
+                'cart' => $cartDTO->toArray()
             ];
 
             $response->getBody()->write(json_encode($data));

@@ -27,28 +27,19 @@ final class RemoveFromCartAction extends AbstractAction
     ): ResponseInterface {
         try {
             $userId = $args['userId'] ?? null;
-            $itemId = $args['itemId'] ?? null;
+            $itemId = isset($args['itemId']) ? (int)$args['itemId'] : null;
 
             if (!$userId || !$itemId) {
                 throw new HttpBadRequestException($request, 'Missing userId or itemId');
             }
 
-            // Récupérer les paramètres de la requête pour avoir toolId et startDate
-            $queryParams = $request->getQueryParams();
-            $toolId = (int)($queryParams['tool_id'] ?? $itemId);
-            $startDate = $queryParams['start_date'] ?? date('Y-m-d');
-
             // Supprimer l'item du panier
-            $cartDTO = $this->serviceCart->removeFromCart((string)$userId, $toolId, $startDate);
+            $cartDTO = $this->serviceCart->removeFromCart((string)$userId, $itemId);
 
             $data = [
-                'type' => 'resource',
+                'success' => true,
                 'message' => 'Item removed from cart successfully',
-                'cart' => [
-                    'user_id' => $userId,
-                    'items' => $cartDTO->items ?? [],
-                    'total' => $cartDTO->total ?? 0,
-                ],
+                'cart' => $cartDTO->toArray(),
             ];
 
             $response->getBody()->write(json_encode($data));

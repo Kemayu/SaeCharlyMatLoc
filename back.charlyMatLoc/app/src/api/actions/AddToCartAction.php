@@ -47,14 +47,7 @@ final class AddToCartAction extends AbstractAction
             $responseData = [
                 'success' => true,
                 'message' => 'Tool added to cart successfully',
-                'cart' => [
-                    'items_count' => count($cartDTO->items),
-                    'total' => $cartDTO->total,
-                    'items' => array_map(fn($item) => [
-                        'tool' => $item->tool,
-                        'quantity' => $item->quantity
-                    ], $cartDTO->items)
-                ]
+                'cart' => $cartDTO->toArray()
             ];
 
             $response->getBody()->write(json_encode($responseData));

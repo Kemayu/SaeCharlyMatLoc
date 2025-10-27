@@ -10,7 +10,6 @@ use charlymatloc\core\ports\spi\ToolRepositoryInterface;
 use charlymatloc\core\dto\AddToCartRequestDTO;
 use charlymatloc\core\dto\CartDTO;
 use charlymatloc\core\dto\CartItemDTO;
-use charlymatloc\core\dto\ToolInCartDTO;
 use charlymatloc\core\domain\entities\tool\CartItem;
 use charlymatloc\core\domain\exception\ToolNotFoundException;
 use charlymatloc\core\domain\exception\ToolNotAvailableException;
@@ -111,34 +110,34 @@ final class ServiceCart implements ServiceCartInterface
     public function getCurrentCart(string $userId): CartDTO
     {
         $cart = $this->cartRepository->findCurrentCartByUserId($userId);
-        
-        if ($cart === null) {
-            return new CartDTO([], 0.0);
-        }
-
-        $itemDTOs = [];
-        foreach ($cart->getItems() as $item) {
-            $toolDTO = ToolInCartDTO::fromEntity($item->getTool());
-            $itemDTOs[] = new CartItemDTO($toolDTO, $item->getQuantity());
-        }
-
-        return new CartDTO($itemDTOs, $cart->calculateTotal());
+        return $this->toCartDTO($cart);
     }
 
-    public function removeFromCart(string $userId, int $toolId, string $startDate): CartDTO
+    public function removeFromCart(string $userId, int $itemId): CartDTO
     {
         $cart = $this->cartRepository->findCurrentCartByUserId($userId);
         if ($cart === null) {
             throw new \Exception("No current cart found for user.");
         }
 
-        $startDateTime = new \DateTime($startDate);
-        $this->cartRepository->removeItem($cart->getId(), $toolId, $startDateTime);
+        $itemBelongsToUser = false;
+        foreach ($cart->getItems() as $item) {
+            if ($item->getId() === $itemId) {
+                $itemBelongsToUser = true;
+                break;
+            }
+        }
+
+        if (!$itemBelongsToUser) {
+            throw new \Exception("Item not found in user's cart.");
+        }
+
+        $this->cartRepository->removeItemById($cart->getId(), $itemId);
 
         return $this->getCurrentCart($userId);
     }
 
-     public function updateItemQuantity(string $userId, int $itemId, int $newQuantity): CartDTO
+    public function updateItemQuantity(string $userId, int $itemId, int $newQuantity): CartDTO
     {
         // Valider que la quantité est positive
         if ($newQuantity < 1) {
@@ -207,5 +206,19 @@ final class ServiceCart implements ServiceCartInterface
         }
 
         return $this->cartRepository->clearCart($cart->getId());
+    }
+
+    private function toCartDTO(?\charlymatloc\core\domain\entities\tool\Cart $cart): CartDTO
+    {
+        if ($cart === null) {
+            return new CartDTO([], 0.0);
+        }
+
+        $itemDTOs = [];
+        foreach ($cart->getItems() as $item) {
+            $itemDTOs[] = CartItemDTO::fromCartItem($item);
+        }
+
+        return new CartDTO($itemDTOs, $cart->calculateTotal());
     }
 }

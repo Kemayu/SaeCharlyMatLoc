@@ -97,4 +97,20 @@ class AuthzService implements AuthzServiceInterface
 
         return $reservation->getUserId() === $user->ID;
     }
+
+    public function canProcessPayment(ProfileDTO $user, string $reservationId): bool
+    {
+        // Les administrateurs peuvent traiter les paiements pour toute réservation
+        if ($user->role === self::ROLE_ADMIN) {
+            return true;
+        }
+
+        $reservation = $this->reservationRepository->findById($reservationId);
+
+        if ($reservation === null) {
+            return false;
+        }
+
+        return $reservation->getUserId() === $user->ID;
+    }
 }

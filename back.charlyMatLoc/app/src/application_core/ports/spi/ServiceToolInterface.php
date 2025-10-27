@@ -23,4 +23,11 @@ interface ServiceToolInterface
      * Compte le nombre d'outils
      */
     public function countTools(): int;
+
+    /**
+     * Recherche les outils avec filtres optionnels.
+     *
+     * @return ToolDTO[]
+     */
+    public function searchTools(?int $categoryId = null, ?string $startDate = null, ?string $endDate = null): array;
 }

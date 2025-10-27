@@ -1,17 +1,46 @@
 .filters {
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem 1.5rem;
     margin-bottom: 2rem;
     background-color: #fff;
     padding: 1rem 1.5rem;
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: 0 4px 8px rgba(116, 74, 74, 0.08);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 200px;
 
     label {
-        font-weight: 500;
+        font-weight: 600;
         color: $brown-dark;
-        flex-shrink: 0;
+    }
+}
+
+.availability-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+
+    input[type='date'] {
+        padding: 0.6rem 0.8rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        font-family: $font-family;
+        font-size: 0.95rem;
+        color: $brown-dark;
+
+        &:focus {
+            outline: none;
+            border-color: $brown-primary;
+            box-shadow: 0 0 0 3px rgba(148, 14, 45, 0.15);
+        }
     }
 }
 
@@ -38,5 +67,31 @@
         outline: none;
         border-color: $brown-primary;
         box-shadow: 0 0 0 3px rgba(148, 14, 45, 0.15);
+    }
+}
+
+@media (max-width: 768px) {
+    .filters {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .availability-group {
+        flex-direction: column;
+        align-items: stretch;
+
+        input[type='date'] {
+            width: 100%;
+        }
+
+        .btn,
+        .btn-link {
+            width: 100%;
+            text-align: center;
+        }
+    }
+
+    .filter-group {
+        width: 100%;
     }
 }

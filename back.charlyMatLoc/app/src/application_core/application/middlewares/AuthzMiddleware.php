@@ -84,6 +84,11 @@ class AuthzMiddleware implements MiddlewareInterface
                 $routeArgs['id'] ?? ''
             ),
             
+            'payments.create' => $this->authzService->canProcessPayment(
+                $user,
+                $routeArgs['reservationId'] ?? ''
+            ),
+            
             default => false,
         };
     }

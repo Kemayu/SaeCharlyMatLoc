@@ -131,6 +131,46 @@ body {
         img {
             border-radius: $border-radius;
         }
+
+        .add-to-cart-card {
+            margin-top: $padding-lg;
+            background: $pink-light;
+            border: 2px solid $pink-dark;
+            border-radius: $border-radius;
+            padding: $padding-base;
+            display: flex;
+            flex-direction: column;
+            gap: $padding-base;
+
+            h3 {
+                margin: 0;
+                color: $brown-dark;
+                font-size: 1.2rem;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+
+                label {
+                    font-weight: 600;
+                    color: $brown-dark;
+                }
+
+                input {
+                    padding: 0.5rem;
+                    border-radius: 10px;
+                    border: 1px solid $pink-dark;
+                    font-size: 1rem;
+                }
+            }
+
+            .login-hint {
+                font-size: 0.9rem;
+                color: $brown-dark;
+            }
+        }
     }
 }
 
@@ -170,6 +210,19 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 400px;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.cart-quantity-input {
+    width: 80px;
+    padding: 0.4rem 0.5rem;
+    border-radius: 8px;
+    border: 1px solid $pink-dark;
 }
 
 // Animation
@@ -258,3 +311,212 @@ body {
     }
 }
 
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1.25rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary {
+    background-color: $brown-primary;
+    color: #fff;
+
+    &:hover {
+        background-color: darken($brown-primary, 10%);
+    }
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+
+    &:hover {
+        background-color: darken(#6c757d, 7%);
+    }
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+
+    &:hover {
+        background-color: darken(#dc3545, 7%);
+    }
+}
+
+.btn-sm {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.875rem;
+}
+
+.btn-lg {
+    padding: 0.85rem 1.75rem;
+    font-size: 1.15rem;
+}
+
+.btn-link {
+    background: transparent;
+    color: $brown-primary;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    text-decoration: underline;
+    font-size: 0.95rem;
+    cursor: pointer;
+
+    &:hover {
+        color: darken($brown-primary, 10%);
+    }
+}
+
+.reservations-page {
+    .reservations-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+    }
+
+    .reservations-list {
+        display: flex;
+        flex-direction: column;
+        gap: $padding-base;
+    }
+
+    .reservation-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+
+        &__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            background: $pink-light;
+
+            h2 {
+                margin: 0;
+                font-size: 1.25rem;
+                color: $brown-dark;
+            }
+
+            p {
+                margin: 0.25rem 0 0;
+                color: rgba($brown-dark, 0.7);
+            }
+        }
+
+        &__status {
+            padding: 0.4rem 0.8rem;
+            border-radius: 999px;
+            text-transform: capitalize;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        &__body {
+            padding: 1.5rem;
+            background: #fff;
+
+            p {
+                margin-bottom: 1rem;
+                font-weight: 500;
+                color: $brown-dark;
+            }
+        }
+    }
+
+    .reservation-items {
+        width: 100%;
+        border-collapse: collapse;
+
+        th,
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            text-align: left;
+        }
+
+        th {
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        a {
+            color: $brown-primary;
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .status-confirmed {
+        background: rgba(76, 175, 80, 0.15);
+        color: #2e7d32;
+    }
+
+    .status-pending {
+        background: rgba(255, 193, 7, 0.15);
+        color: #b28704;
+    }
+
+    .status-cancelled,
+    .status-returned {
+        background: rgba(244, 67, 54, 0.15);
+        color: #b71c1c;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2.5rem 1rem;
+
+        p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .reservations-page {
+        .reservations-header {
+            flex-direction: column;
+            align-items: stretch;
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        .reservation-card__header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .reservation-items {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+
+    .login-page,
+    .register-page {
+        margin: 3rem auto;
+        padding: 2rem 1.5rem;
+    }
+}

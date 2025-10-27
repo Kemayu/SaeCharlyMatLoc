@@ -38,4 +38,41 @@ class PDOAuthRepository implements AuthRepositoryInterface
             return null;
         }
     }
+
+    public function createUser(string $email, string $passwordHash, int $role): array
+    {
+        $sql = '
+            INSERT INTO users (email, password_hash, role_code)
+            VALUES (:email, :password_hash, :role_code)
+            RETURNING user_id::text, email, role_code
+        ';
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                'email' => $email,
+                'password_hash' => $passwordHash,
+                'role_code' => $role,
+            ]);
+
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$row) {
+                throw new \RuntimeException('Unable to create user');
+            }
+
+            return [
+                'id' => (string)$row['user_id'],
+                'email' => (string)$row['email'],
+                'role' => (int)$row['role_code'],
+            ];
+        } catch (\PDOException $e) {
+            // 23505: unique_violation
+            if ($e->getCode() === '23505') {
+                throw new \RuntimeException('Email already in use', 0, $e);
+            }
+
+            throw $e;
+        }
+    }
 }

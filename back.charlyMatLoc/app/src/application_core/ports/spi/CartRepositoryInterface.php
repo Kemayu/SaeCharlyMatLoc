@@ -30,9 +30,9 @@ interface CartRepositoryInterface
     public function addItem(string $cartId, CartItem $item): CartItem;
 
     /**
-     * Supprime un item du panier
+     * Supprime un item du panier par son identifiant
      */
-    public function removeItem(string $cartId, int $toolId, \DateTime $startDate): bool;
+    public function removeItemById(string $cartId, int $itemId): bool;
 
      /**
      * Met à jour la quantité d'un item dans le panier

@@ -36,14 +36,7 @@ final class GetCartDetailsAction extends AbstractAction
 
             $data = [
                 'success' => true,
-                'cart' => [
-                    'items_count' => count($cartDTO->items),
-                    'total' => $cartDTO->total,
-                    'items' => array_map(fn($item) => [
-                        'tool' => $item->tool,
-                        'quantity' => $item->quantity
-                    ], $cartDTO->items)
-                ]
+                'cart' => $cartDTO->toArray()
             ];
 
             $response->getBody()->write(json_encode($data));

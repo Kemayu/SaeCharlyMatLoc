@@ -1,0 +1,60 @@
+<section id="page-reservations" class="page reservations-page">
+    <div class="container">
+        <div class="reservations-header">
+            <h1>Mes réservations</h1>
+            <a href="#" data-page="catalog" class="btn btn-secondary">Retour au catalogue</a>
+        </div>
+
+        {{#if hasReservations}}
+        <div class="reservations-list">
+            {{#each reservations}}
+            <article class="reservation-card">
+                <header class="reservation-card__header">
+                    <div>
+                        <h2>Réservation n°{{id}}</h2>
+                        <p>Effectuée le {{reservation_date}}</p>
+                    </div>
+                    <div class="reservation-card__status status-{{status}}">
+                        {{status}}
+                    </div>
+                </header>
+                <div class="reservation-card__body">
+                    <p><strong>Montant total :</strong> {{total_amount}} €</p>
+                    {{#if items}}
+                    <table class="reservation-items">
+                        <thead>
+                            <tr>
+                                <th>Outil</th>
+                                <th>Période</th>
+                                <th>Quantité</th>
+                                <th>Prix unitaire</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each items}}
+                            <tr>
+                                <td><a href="#" data-page="tool-detail" data-id="{{tool_id}}">{{tool_name}}</a></td>
+                                <td>{{start_date}} → {{end_date}}</td>
+                                <td>{{quantity}}</td>
+                                <td>{{unit_price}} €</td>
+                                <td>{{total_price}} €</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                    {{/if}}
+                </div>
+            </article>
+            {{/each}}
+        </div>
+        {{else}}
+        <div class="card empty-state">
+            <div class="card-body">
+                <p>Vous n'avez encore aucune réservation.</p>
+                <a href="#" data-page="catalog" class="btn btn-primary">Voir le catalogue</a>
+            </div>
+        </div>
+        {{/if}}
+    </div>
+</section>
