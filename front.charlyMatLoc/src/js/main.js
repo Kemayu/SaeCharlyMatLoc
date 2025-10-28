@@ -137,6 +137,8 @@ class App {
         this.filterEndDate = '';
         this.hasAvailabilityFilter = false;
         this.reservations = [];
+        this.feedback = null;
+        this.feedbackTimeout = null;
         // Mapping des catégories pour le filtre, correspondant à la BDD
         this.categories = [
             { id: 1, name: 'Petit outillage' },
@@ -196,6 +198,95 @@ class App {
         }
 
         this.refreshCartIndicator();
+    }
+
+    setFeedback(message, type = 'info', options = {}) {
+        if (this.feedbackTimeout) {
+            clearTimeout(this.feedbackTimeout);
+            this.feedbackTimeout = null;
+        }
+
+        if (!message) {
+            this.clearFeedback();
+            return;
+        }
+
+        const normalizedType = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info';
+        const shouldAutoHide = options.autoHide !== undefined ? options.autoHide : normalizedType !== 'error';
+        const duration = options.duration ?? 6000;
+
+        this.feedback = {
+            message,
+            type: normalizedType
+        };
+
+        this.renderFeedback();
+
+        if (shouldAutoHide) {
+            this.feedbackTimeout = setTimeout(() => {
+                this.clearFeedback();
+            }, duration);
+        }
+    }
+
+    clearFeedback() {
+        if (this.feedbackTimeout) {
+            clearTimeout(this.feedbackTimeout);
+            this.feedbackTimeout = null;
+        }
+
+        this.feedback = null;
+        this.renderFeedback();
+    }
+
+    renderFeedback() {
+        if (typeof document === 'undefined') {
+            return;
+        }
+
+        const container = document.getElementById('global-feedback');
+        if (!container) {
+            return;
+        }
+
+        container.classList.remove('is-visible');
+        container.innerHTML = '';
+
+        if (!this.feedback || !this.feedback.message) {
+            return;
+        }
+
+        const { message, type } = this.feedback;
+        const iconMap = {
+            success: '✔',
+            error: '✖',
+            warning: '!',
+            info: 'ℹ'
+        };
+
+        const wrapper = document.createElement('div');
+        wrapper.className = `feedback-message feedback-${type}`;
+
+        const icon = document.createElement('span');
+        icon.className = 'feedback-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.textContent = iconMap[type] ?? iconMap.info;
+        wrapper.appendChild(icon);
+
+        const text = document.createElement('span');
+        text.className = 'feedback-text';
+        text.textContent = message;
+        wrapper.appendChild(text);
+
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'feedback-close';
+        closeBtn.setAttribute('aria-label', 'Fermer la notification');
+        closeBtn.innerHTML = '&times;';
+        wrapper.appendChild(closeBtn);
+
+        container.appendChild(wrapper);
+        container.classList.add('is-visible');
     }
 
     refreshCartIndicator() {
@@ -258,18 +349,25 @@ class App {
             this.tools = data.tools || [];
             this.filteredTools = this.tools;
             this.hasAvailabilityFilter = Boolean(this.filterStartDate);
-            console.log('Loaded tools (check tool_id):', this.tools); // DEBUG: Vérifier la présence de tool_id
+            if (this.feedback?.message === 'Impossible de charger le catalogue pour le moment. Veuillez réessayer plus tard.') {
+                this.clearFeedback();
+            }
+            return true;
         } catch (error) {
             console.error('Erreur lors du chargement des outils:', error);
             this.tools = []; // Garde une valeur sûre en cas d'erreur
             this.filteredTools = [];
             this.hasAvailabilityFilter = false;
+            const message = 'Impossible de charger le catalogue pour le moment. Veuillez réessayer plus tard.';
+            if (!this.feedback || this.feedback.message !== message) {
+                this.setFeedback(message, 'error', { autoHide: false });
+            }
+            return false;
         }
     }
 
     async loadCart() {
         if (!this.authManager.isAuthenticated()) {
-            console.log('User not authenticated, returning empty cart');
             this.updateCartState({ items: [], total: 0, items_count: 0 });
             return this.cart;
         }
@@ -283,12 +381,18 @@ class App {
                 throw new Error(`Erreur HTTP lors du chargement du panier: ${response.status}`);
             }
             const data = await response.json();
-            console.log('Loaded cart:', data);
             const cart = data.cart ?? { items: [], total: 0, items_count: 0 };
+            if (this.feedback?.message === 'Impossible de charger votre panier pour le moment.') {
+                this.clearFeedback();
+            }
             return this.updateCartState(cart);
         } catch (error) {
             console.error('Erreur lors du chargement du panier:', error);
             this.updateCartState({ items: [], total: 0, items_count: 0 });
+            const message = 'Impossible de charger votre panier pour le moment.';
+            if (!this.feedback || this.feedback.message !== message) {
+                this.setFeedback(message, 'error', { autoHide: false });
+            }
             return this.cart;
         }
     }
@@ -311,10 +415,17 @@ class App {
 
             const data = await response.json();
             this.reservations = data.reservations ?? [];
+            if (this.feedback?.message === 'Impossible de récupérer vos réservations pour le moment.') {
+                this.clearFeedback();
+            }
             return this.reservations;
         } catch (error) {
             console.error('Erreur lors du chargement des réservations:', error);
             this.reservations = [];
+            const message = 'Impossible de récupérer vos réservations pour le moment.';
+            if (!this.feedback || this.feedback.message !== message) {
+                this.setFeedback(message, 'error', { autoHide: false });
+            }
             return this.reservations;
         }
     }
@@ -322,12 +433,18 @@ class App {
     setupNavigation() {
         // Délégation d'événements pour gérer les liens dynamiques
         document.addEventListener('click', (e) => {
+            const closeBtn = e.target.closest('.feedback-close');
+            if (closeBtn) {
+                e.preventDefault();
+                this.clearFeedback();
+                return;
+            }
+
             const pageLink = e.target.closest('[data-page]');
             if (pageLink) {
                 e.preventDefault();
                 const pageName = pageLink.getAttribute('data-page');
                 const toolId = pageLink.dataset.id; // Récupère l'ID de l'outil si présent
-                console.log('Navigation click:', { pageName, toolId, target: e.target }); // DEBUG: Voir ce qui est cliqué
                 this.showPage(pageName, toolId);
             }
 
@@ -427,13 +544,13 @@ class App {
         const result = await this.authManager.login(email, password);
         
         if (result.success) {
-            alert(`Bienvenue ${result.user.email} !`);
+            this.setFeedback(`Bienvenue ${result.user.email} !`, 'success');
             this.updateNavigationUI(); // Mettre à jour le menu
             await this.loadCart();
             await this.loadReservations();
             await this.showPage('catalog');
         } else {
-            alert(`Erreur de connexion: ${result.error}`);
+            this.setFeedback(`Erreur de connexion : ${result.error}`, 'error', { autoHide: false });
         }
     }
 
@@ -447,17 +564,17 @@ class App {
         const confirmation = confirmInput ? confirmInput.value : '';
 
         if (!email || !password) {
-            alert('Merci de renseigner un email et un mot de passe.');
+            this.setFeedback('Merci de renseigner un email et un mot de passe.', 'error', { autoHide: false });
             return;
         }
 
         if (password.length < 8) {
-            alert('Le mot de passe doit contenir au moins 8 caractères.');
+            this.setFeedback('Le mot de passe doit contenir au moins 8 caractères.', 'error', { autoHide: false });
             return;
         }
 
         if (confirmation && password !== confirmation) {
-            alert('Les mots de passe ne correspondent pas.');
+            this.setFeedback('Les mots de passe ne correspondent pas.', 'error', { autoHide: false });
             return;
         }
 
@@ -465,32 +582,29 @@ class App {
 
         if (result.success) {
             form.reset();
-            alert('Votre compte a été créé avec succès. Bienvenue !');
+            this.setFeedback('Votre compte a été créé avec succès. Bienvenue !', 'success');
             await this.loadCart();
             await this.loadReservations();
             this.updateNavigationUI();
             await this.showPage('catalog');
         } else {
-            alert(`Erreur lors de l'inscription : ${result.error}`);
+            this.setFeedback(`Erreur lors de l'inscription : ${result.error}`, 'error', { autoHide: false });
         }
     }
 
     handleLogout() {
-        if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
-            this.authManager.logout();
-            this.updateCartState({ items: [], total: 0, items_count: 0 });
-            this.reservations = [];
-            this.updateNavigationUI(); // Mettre à jour le menu
-            alert('Vous êtes déconnecté');
-            this.showPage('catalog');
-        }
+        this.authManager.logout();
+        this.updateCartState({ items: [], total: 0, items_count: 0 });
+        this.reservations = [];
+        this.updateNavigationUI(); // Mettre à jour le menu
+        this.setFeedback('Vous êtes déconnecté.', 'info');
+        this.showPage('catalog');
     }
 
     async handleAddToCart(form) {
         if (!this.authManager.isAuthenticated()) {
-            if (confirm('Vous devez être connecté pour ajouter un article au panier. Aller à la connexion ?')) {
-                await this.showPage('login');
-            }
+            this.setFeedback('Connectez-vous pour ajouter des articles à votre panier.', 'warning', { autoHide: false });
+            await this.showPage('login');
             return;
         }
 
@@ -501,7 +615,27 @@ class App {
         const quantity = parseInt(formData.get('quantity'), 10) || 1;
 
         if (!toolId || !startDate) {
-            alert('Merci de sélectionner une date de début valide.');
+            this.setFeedback('Merci de sélectionner une date de début valide.', 'error', { autoHide: false });
+            return;
+        }
+
+        if (!Array.isArray(this.cart?.items)) {
+            await this.loadCart();
+        }
+
+        const duplicateItem = (this.cart.items ?? []).find(item => {
+            return item.tool?.id === toolId &&
+                item.start_date === startDate &&
+                item.end_date === endDate;
+        });
+
+        if (duplicateItem) {
+            this.setFeedback(
+                'Cet outil est déjà présent dans votre panier pour ces dates. Ajustez la quantité directement depuis le panier.',
+                'warning',
+                { autoHide: false }
+            );
+            await this.showPage('card', null, { skipLoad: true });
             return;
         }
 
@@ -527,17 +661,26 @@ class App {
 
             const result = await response.json();
             this.updateCartState(result.cart);
-            alert('Article ajouté au panier avec succès.');
+            this.setFeedback('Article ajouté au panier avec succès.', 'success');
+            await this.refreshToolAvailability(toolId);
             await this.showPage('card', null, { skipLoad: true });
         } catch (error) {
             console.error('Erreur lors de l\'ajout au panier:', error);
-            alert(`Erreur lors de l'ajout au panier : ${error.message}`);
+            const isStockIssue = this.isStockError(error.message);
+            const message = isStockIssue
+                ? this.getFriendlyStockError(error.message)
+                : `Erreur lors de l'ajout au panier : ${error.message}`;
+            this.setFeedback(message, 'error', { autoHide: false });
+
+            if (isStockIssue) {
+                await this.refreshToolAvailability(toolId);
+            }
         }
     }
 
     async handleRemoveFromCart(itemId) {
         if (!this.authManager.isAuthenticated()) {
-            alert('Veuillez vous connecter pour gérer votre panier.');
+            this.setFeedback('Veuillez vous connecter pour gérer votre panier.', 'warning', { autoHide: false });
             await this.showPage('login');
             return;
         }
@@ -560,24 +703,24 @@ class App {
 
             const result = await response.json();
             this.updateCartState(result.cart);
-            alert('Article supprimé du panier.');
+            this.setFeedback('Article supprimé du panier.', 'success');
             await this.showPage('card', null, { skipLoad: true });
         } catch (error) {
             console.error('Erreur lors de la suppression du panier:', error);
-            alert(`Erreur lors de la suppression : ${error.message}`);
+            this.setFeedback(`Erreur lors de la suppression : ${error.message}`, 'error', { autoHide: false });
         }
     }
 
     async handleCartQuantityChange(itemId, newQuantity, inputElement) {
         if (!this.authManager.isAuthenticated()) {
-            alert('Veuillez vous connecter pour modifier votre panier.');
+            this.setFeedback('Veuillez vous connecter pour modifier votre panier.', 'warning', { autoHide: false });
             await this.showPage('login');
             return;
         }
 
         if (newQuantity < 1) {
             inputElement.value = inputElement.dataset.previousValue || 1;
-            alert('La quantité minimale est 1.');
+            this.setFeedback('La quantité minimale est 1.', 'error', { autoHide: false });
             return;
         }
 
@@ -604,11 +747,23 @@ class App {
 
             const result = await response.json();
             this.updateCartState(result.cart);
+            this.setFeedback(`Quantité mise à jour : ${newQuantity}.`, 'success');
             await this.showPage('card', null, { skipLoad: true });
         } catch (error) {
             console.error('Erreur lors de la mise à jour de la quantité:', error);
-            alert(`Erreur lors de la mise à jour de la quantité : ${error.message}`);
+            const isStockIssue = this.isStockError(error.message);
+            const message = isStockIssue
+                ? `${this.getFriendlyStockError(error.message)} La quantité a été réinitialisée.`
+                : `Erreur lors de la mise à jour de la quantité : ${error.message}`;
+            this.setFeedback(message, 'error', { autoHide: false });
             inputElement.value = previousValue;
+
+            if (isStockIssue) {
+                const cartItem = (this.cart.items ?? []).find(item => item.id === itemId);
+                if (cartItem?.tool?.id) {
+                    await this.refreshToolAvailability(cartItem.tool.id);
+                }
+            }
         } finally {
             inputElement.disabled = false;
             inputElement.dataset.previousValue = inputElement.value;
@@ -617,13 +772,13 @@ class App {
 
     async handleCheckout() {
         if (!this.authManager.isAuthenticated()) {
-            alert('Veuillez vous connecter pour valider votre panier.');
+            this.setFeedback('Veuillez vous connecter pour valider votre panier.', 'warning', { autoHide: false });
             await this.showPage('login');
             return;
         }
 
         if (!this.cart || this.cart.items_count === 0) {
-            alert('Votre panier est vide.');
+            this.setFeedback('Votre panier est vide.', 'warning', { autoHide: false });
             return;
         }
 
@@ -674,7 +829,7 @@ class App {
             } catch (paymentError) {
                 console.error('Erreur lors du paiement simulé:', paymentError);
                 this.updateCartState({ items: [], total: 0, items_count: 0 });
-                alert(`Réservation enregistrée, mais le paiement a échoué : ${paymentError.message}`);
+                this.setFeedback(`Réservation enregistrée, mais le paiement a échoué : ${paymentError.message}`, 'warning', { autoHide: false });
                 await this.showPage('catalog');
                 return;
             }
@@ -683,13 +838,36 @@ class App {
             const confirmationMessage = paymentReference
                 ? `Paiement simulé réussi ! Référence: ${paymentReference}`
                 : 'Paiement simulé réussi !';
-            alert(`Commande validée. ${confirmationMessage}`);
+            this.setFeedback(`Commande validée. ${confirmationMessage}`, 'success');
             await this.loadReservations();
             await this.showPage('catalog');
         } catch (error) {
             console.error('Erreur lors de la validation du panier:', error);
-            alert(`Erreur lors de la validation : ${error.message}`);
+            const isStockIssue = this.isStockError(error.message);
+            const message = isStockIssue
+                ? `${this.getFriendlyStockError(error.message)} Impossible de finaliser la commande.`
+                : `Erreur lors de la validation : ${error.message}`;
+            this.setFeedback(message, 'error', { autoHide: false });
+
+            if (isStockIssue) {
+                await this.loadCart();
+                await this.showPage('card');
+            }
         }
+    }
+
+    formatDisplayDate(dateString) {
+        if (!dateString || typeof dateString !== 'string') {
+            return dateString ?? '';
+        }
+
+        const parts = dateString.split('-');
+        if (parts.length === 3) {
+            const [year, month, day] = parts;
+            return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+        }
+
+        return dateString;
     }
 
     formatDate(date) {
@@ -703,6 +881,157 @@ class App {
         const date = new Date();
         date.setDate(date.getDate() + offsetDays);
         return this.formatDate(date);
+    }
+
+    getReservationStatusLabel(status) {
+        if (!status) {
+            return 'Statut inconnu';
+        }
+
+        const labels = {
+            pending: 'En attente',
+            confirmed: 'Confirmée',
+            cancelled: 'Annulée',
+            returned: 'Terminée'
+        };
+
+        const normalized = String(status).toLowerCase();
+        return labels[normalized] ?? status;
+    }
+
+    getReservationStatusIcon(status) {
+        if (!status) {
+            return 'ℹ';
+        }
+
+        const icons = {
+            pending: '⏳',
+            confirmed: '✅',
+            cancelled: '✖',
+            returned: '🔁'
+        };
+
+        const normalized = String(status).toLowerCase();
+        return icons[normalized] ?? 'ℹ';
+    }
+
+    isStockError(message) {
+        if (!message) {
+            return false;
+        }
+        return String(message).toLowerCase().includes('insufficient stock');
+    }
+
+    getFriendlyStockError(message) {
+        if (!message) {
+            return 'Stock insuffisant pour la période sélectionnée.';
+        }
+
+        const quantityMatch = /requested quantity\s*\((\d+)\)/i.exec(message);
+        const periodMatch = /from\s([0-9-]+)\s+to\s+([0-9-]+)/i.exec(message);
+
+        const quantityPart = quantityMatch ? ` pour ${quantityMatch[1]} article(s)` : '';
+
+        let periodPart = '';
+        if (periodMatch) {
+            const start = this.formatDisplayDate(periodMatch[1]);
+            const end = this.formatDisplayDate(periodMatch[2]);
+
+            if (start && end) {
+                periodPart = start === end
+                    ? ` le ${start}`
+                    : ` du ${start} au ${end}`;
+            }
+        }
+
+        return `Stock insuffisant${quantityPart}${periodPart}. Réduisez la quantité ou choisissez d'autres dates.`;
+    }
+
+    updateCachedTool(tool) {
+        if (!tool || !tool.tool_id) {
+            return;
+        }
+
+        const replaceTool = (collection) => {
+            if (!Array.isArray(collection)) {
+                return;
+            }
+            const index = collection.findIndex(item => item.tool_id === tool.tool_id);
+            if (index !== -1) {
+                collection[index] = {
+                    ...collection[index],
+                    ...tool
+                };
+            }
+        };
+
+        replaceTool(this.tools);
+        replaceTool(this.filteredTools);
+    }
+
+    async refreshToolAvailability(toolId) {
+        if (!toolId) {
+            return null;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/tools/${toolId}`, {
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                return null;
+            }
+
+            const data = await response.json();
+            const tool = data.tool;
+            if (!tool) {
+                return null;
+            }
+
+            this.updateCachedTool(tool);
+
+            if (Array.isArray(this.cart?.items)) {
+                const updatedCartItems = this.cart.items.map(item => {
+                    if (item.tool?.id === tool.tool_id) {
+                        return {
+                            ...item,
+                            tool: {
+                                ...item.tool,
+                                stock: tool.stock
+                            }
+                        };
+                    }
+                    return item;
+                });
+
+                this.cart = {
+                    ...this.cart,
+                    items: updatedCartItems
+                };
+            }
+
+            if (typeof document !== 'undefined') {
+                const stockSpan = document.querySelector('[data-tool-stock]');
+                if (stockSpan) {
+                    stockSpan.textContent = tool.stock;
+                }
+
+                const quantityInput = document.querySelector('[data-stock-input]');
+                if (quantityInput) {
+                    quantityInput.setAttribute('max', String(tool.stock));
+                    const currentValue = parseInt(quantityInput.value, 10);
+                    if (!Number.isNaN(currentValue) && currentValue > tool.stock) {
+                        quantityInput.value = tool.stock > 0 ? tool.stock : 1;
+                    }
+                }
+            }
+
+            return tool;
+        } catch (error) {
+            console.error('Erreur lors de la mise à jour du stock:', error);
+            return null;
+        }
     }
 
     async showPage(pageName, toolId = null, options = {}) {
@@ -781,12 +1110,13 @@ class App {
                     };
                 } catch (error) {
                     console.error(`Erreur lors du chargement du détail de l'outil ${toolId}:`, error);
+                    this.setFeedback('Impossible de charger cet outil pour le moment.', 'error', { autoHide: false });
                     data = { error: "L'outil n'a pas pu être chargé." };
                 }
                 break;
             case 'card':
                 if (!this.authManager.isAuthenticated()) {
-                    alert('Vous devez être connecté pour voir votre panier');
+                    this.setFeedback('Vous devez être connecté pour voir votre panier.', 'warning', { autoHide: false });
                     await this.showPage('login');
                     return;
                 }
@@ -801,8 +1131,29 @@ class App {
                     cartState = await this.loadCart();
                 }
 
-                data = { 
-                    cart: cartState,
+                const decoratedCart = {
+                    ...cartState,
+                    items: (cartState.items ?? []).map(item => {
+                        const startDisplay = this.formatDisplayDate(item.start_date);
+                        const endDisplay = this.formatDisplayDate(item.end_date);
+                        let periodLabel = startDisplay;
+                        if (startDisplay && endDisplay) {
+                            periodLabel = startDisplay === endDisplay
+                                ? `Le ${startDisplay}`
+                                : `${startDisplay} → ${endDisplay}`;
+                        }
+
+                        return {
+                            ...item,
+                            display_start_date: startDisplay,
+                            display_end_date: endDisplay,
+                            display_period: periodLabel
+                        };
+                    })
+                };
+
+                data = {
+                    cart: decoratedCart,
                     user: this.authManager.getUser()
                 };
                 break;
@@ -823,15 +1174,44 @@ class App {
                 break;
             case 'reservations':
                 if (!this.authManager.isAuthenticated()) {
-                    alert('Vous devez être connecté pour consulter vos réservations');
+                    this.setFeedback('Vous devez être connecté pour consulter vos réservations.', 'warning', { autoHide: false });
                     await this.showPage('login');
                     return;
                 }
                 const reservations = await this.loadReservations();
+                const decoratedReservations = reservations.map(reservation => {
+                    const items = (reservation.items ?? []).map(item => {
+                        const startDisplay = this.formatDisplayDate(item.start_date);
+                        const endDisplay = this.formatDisplayDate(item.end_date);
+                        let periodLabel = startDisplay;
+                        if (startDisplay && endDisplay) {
+                            periodLabel = startDisplay === endDisplay
+                                ? `Le ${startDisplay}`
+                                : `${startDisplay} → ${endDisplay}`;
+                        }
+
+                        return {
+                            ...item,
+                            display_period: periodLabel
+                        };
+                    });
+
+                    const totalQuantity = items.reduce((sum, item) => sum + (item.quantity ?? 0), 0);
+
+                    return {
+                        ...reservation,
+                        items,
+                        status_label: this.getReservationStatusLabel(reservation.status),
+                        status_icon: this.getReservationStatusIcon(reservation.status),
+                        formatted_reservation_date: this.formatDisplayDate(reservation.reservation_date),
+                        total_quantity: totalQuantity
+                    };
+                });
+
                 data = {
                     user: this.authManager.getUser(),
-                    reservations,
-                    hasReservations: reservations.length > 0
+                    reservations: decoratedReservations,
+                    hasReservations: decoratedReservations.length > 0
                 };
                 break;
             default: // Gérer les pages inconnues ou non gérées
@@ -842,6 +1222,7 @@ class App {
         }
 
         await templateManager.renderPage(effectivePageName, data);
+        this.renderFeedback();
     }
 
     async applyAvailabilityFilter() {
@@ -857,7 +1238,7 @@ class App {
         }
 
         if (startValue && endValue && endValue < startValue) {
-            alert('La date de fin doit être postérieure ou égale à la date de début.');
+            this.setFeedback('La date de fin doit être postérieure ou égale à la date de début.', 'error', { autoHide: false });
             return;
         }
 
@@ -865,11 +1246,17 @@ class App {
         this.filterEndDate = endValue;
         this.currentPage = 1;
 
-        try {
-            await this.loadTools();
-        } catch (error) {
-            console.error('Erreur lors de l\'application du filtre de disponibilité:', error);
-            alert('Impossible d\'appliquer le filtre de disponibilité.');
+        const loaded = await this.loadTools();
+        if (!loaded) {
+            console.error('Erreur lors de l\'application du filtre de disponibilité: les données n\'ont pas pu être chargées.');
+            this.setFeedback('Impossible d\'appliquer le filtre de disponibilité pour le moment.', 'error', { autoHide: false });
+        } else {
+            const startLabel = this.formatDisplayDate(startValue);
+            const endLabel = this.formatDisplayDate(endValue || startValue);
+            const message = (endValue && endValue !== startValue)
+                ? `Disponibilité appliquée du ${startLabel} au ${endLabel}.`
+                : `Disponibilité appliquée pour le ${startLabel}.`;
+            this.setFeedback(message, 'info');
         }
 
         await this.showPage('catalog');
@@ -889,11 +1276,12 @@ class App {
         if (startInput) startInput.value = '';
         if (endInput) endInput.value = '';
 
-        try {
-            await this.loadTools();
-        } catch (error) {
-            console.error('Erreur lors de la réinitialisation du filtre de disponibilité:', error);
-            alert('Impossible de réinitialiser le filtre de disponibilité.');
+        const loaded = await this.loadTools();
+        if (!loaded) {
+            console.error('Erreur lors de la réinitialisation du filtre de disponibilité: les données n\'ont pas pu être chargées.');
+            this.setFeedback('Impossible de réinitialiser le filtre de disponibilité.', 'error', { autoHide: false });
+        } else {
+            this.setFeedback('Filtre de disponibilité réinitialisé. Tous les outils sont affichés.', 'info');
         }
 
         await this.showPage('catalog');
@@ -903,11 +1291,16 @@ class App {
         this.selectedCategoryId = categoryId;
         this.currentPage = 1;
 
-        try {
-            await this.loadTools();
-        } catch (error) {
-            console.error('Erreur lors du filtrage par catégorie:', error);
-            alert('Impossible d\'appliquer le filtre de catégorie.');
+        const loaded = await this.loadTools();
+        if (!loaded) {
+            console.error('Erreur lors du filtrage par catégorie: les données n\'ont pas pu être chargées.');
+            this.setFeedback('Impossible d\'appliquer le filtre de catégorie.', 'error', { autoHide: false });
+        } else {
+            const category = this.categories.find(item => String(item.id) === String(categoryId));
+            const message = categoryId === 'all'
+                ? 'Toutes les catégories sont affichées.'
+                : `Filtre appliqué : ${category?.name ?? 'Catalogue'}.`;
+            this.setFeedback(message, 'info');
         }
 
         await this.showPage('catalog');

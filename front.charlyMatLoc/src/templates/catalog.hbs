@@ -4,8 +4,8 @@
         <h2>Catalogue des outils</h2>
 
         <div class="filters mb-4">
-            <div class="filter-group">
-                <label for="category-filter">Filtrer par catégorie :</label>
+            <div class="filter-group category-group">
+                <label for="category-filter">Filtrer par catégorie</label>
                 <select id="category-filter" class="select">
                     <option value="all" {{#if isAllCategoriesSelected}}selected{{/if}}>Toutes les catégories</option>
                     {{#each categories}}
@@ -16,8 +16,10 @@
             <div class="filter-group availability-group">
                 <label for="availability-start">Disponible du</label>
                 <input type="date" id="availability-start" value="{{selectedStartDate}}">
-                <label for="availability-end">au</label>
+                <span class="filter-separator">au</span>
                 <input type="date" id="availability-end" value="{{selectedEndDate}}">
+            </div>
+            <div class="filter-group filters-actions">
                 <button type="button" class="btn btn-secondary btn-sm" id="apply-availability-filter">Appliquer</button>
                 {{#if hasAvailabilityFilter}}
                 <button type="button" class="btn btn-link btn-sm" id="clear-availability-filter">Réinitialiser</button>

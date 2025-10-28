@@ -1,12 +1,15 @@
 {
   "dependencies": {
     "express": "^4.18.2",
-    "handlebars": "^4.7.8"
+    "handlebars": "^4.7.8",
+    "sass": "^1.70.0"
   },
   "scripts": {
-    "dev": "node src/server.js",
-    "start": "node src/server.js",
-    "sass": "sass --watch src/scss:src/css"
+    "serve": "node src/server.js",
+    "sass:build": "sass src/scss:src/css",
+    "sass:watch": "sass --watch src/scss:src/css",
+    "dev": "sh -c 'npm run sass:watch & npm run serve'",
+    "start": "npm run dev"
   },
   "type": "module"
 }

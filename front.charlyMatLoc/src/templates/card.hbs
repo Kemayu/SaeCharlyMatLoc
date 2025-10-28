@@ -1,190 +1,86 @@
-<section id="page-card" class="page">
+<section id="page-card" class="page cart-page">
     <div class="container">
         <div class="cart-header">
-            <h1>Panier de {{#if user}}{{user.email}}{{else}}vous{{/if}}</h1>
+            <div>
+                <h1>Mon panier</h1>
+                {{#if user}}
+                <p class="cart-subtitle">Connecté en tant que <strong>{{user.email}}</strong></p>
+                {{/if}}
+            </div>
             <a href="#" data-page="catalog" class="btn btn-secondary">Continuer mes achats</a>
         </div>
 
         {{#if cart.items_count}}
-        <div class="card cart-items">
-            <div class="card-body">
-                <table class="cart-table">
-                    <thead>
-                        <tr>
-                            <th>Outil</th>
-                            <th>Date de début</th>
-                            <th>Date de fin</th>
-                            <th>Durée</th>
-                            <th>Quantité</th>
-                            <th>Prix/jour</th>
-                            <th>Total</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{#each cart.items}}
-                        <tr>
-                            <td>
+        <div class="cart-layout">
+            <div class="cart-items">
+                {{#each cart.items}}
+                <article class="cart-item-card">
+                    <header class="cart-item-card__header">
+                        <div class="cart-item-card__title">
+                            <h2>
                                 <a href="#" data-page="tool-detail" data-id="{{this.tool.id}}">
                                     {{this.tool.name}}
                                 </a>
-                            </td>
-                            <td>{{this.start_date}}</td>
-                            <td>{{this.end_date}}</td>
-                            <td>{{this.duration_days}} jour(s)</td>
-                            <td>
-                                <input
-                                    type="number"
-                                    class="cart-quantity-input"
-                                    data-item-id="{{this.id}}"
-                                    value="{{this.quantity}}"
-                                    min="1"
-                                >
-                            </td>
-                            <td>{{this.price_per_day}} €</td>
-                            <td><strong>{{this.total_price}} €</strong></td>
-                            <td>
-                                <button class="btn btn-danger btn-sm" data-remove-item="{{this.id}}">
-                                    Supprimer
-                                </button>
-                            </td>
-                        </tr>
-                        {{/each}}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                            </h2>
+                            <p class="cart-item-card__period-label">{{this.display_period}}</p>
+                        </div>
+                        <button type="button" class="cart-remove-button" data-remove-item="{{this.id}}">
+                            Supprimer
+                        </button>
+                    </header>
 
-        <div class="card cart-summary">
-            <div class="card-body">
-                <h2>Résumé de la commande</h2>
-                <p><strong>Nombre d'articles :</strong> {{cart.items_count}}</p>
-                <p class="total-price"><strong>Total :</strong> {{cart.total}} €</p>
-                <button class="btn btn-primary btn-lg" data-checkout>
-                    Valider la commande
-                </button>
+                    <div class="cart-item-card__body">
+                        <div class="cart-item-card__column cart-item-card__dates">
+                            <span class="cart-item-label">Période</span>
+                            <span class="cart-item-value">{{this.display_period}}</span>
+                            <span class="cart-item-meta">{{this.duration_days}} jour(s)</span>
+                        </div>
+                        <div class="cart-item-card__column cart-item-card__quantity">
+                            <span class="cart-item-label">Quantité</span>
+                            <input
+                                type="number"
+                                class="cart-quantity-input"
+                                data-item-id="{{this.id}}"
+                                value="{{this.quantity}}"
+                                min="1"
+                            >
+                        </div>
+                        <div class="cart-item-card__column cart-item-card__pricing">
+                            <span class="cart-item-label">Tarif</span>
+                            <span class="cart-item-value">{{this.price_per_day}} € / jour</span>
+                            <span class="cart-item-total">{{this.total_price}} €</span>
+                        </div>
+                    </div>
+                </article>
+                {{/each}}
             </div>
-        </div>
 
+            <aside class="cart-summary card">
+                <div class="card-body">
+                    <h2>Résumé de la commande</h2>
+                    <dl class="summary-list">
+                        <div class="summary-item">
+                            <dt>Articles</dt>
+                            <dd>{{cart.items_count}}</dd>
+                        </div>
+                        <div class="summary-item total">
+                            <dt>Total à régler</dt>
+                            <dd>{{cart.total}} €</dd>
+                        </div>
+                    </dl>
+                    <button class="btn btn-primary btn-lg" data-checkout>
+                        Valider la commande
+                    </button>
+                </div>
+            </aside>
+        </div>
         {{else}}
         <div class="card empty-cart">
             <div class="card-body">
-                <p class="card-text">Aucun article dans le panier.</p>
-                <a href="#" data-page="catalog" class="btn btn-primary">Retour au catalogue</a>
+                <p class="card-text">Votre panier est vide.</p>
+                <a href="#" data-page="catalog" class="btn btn-primary">Voir le catalogue</a>
             </div>
         </div>
         {{/if}}
     </div>
 </section>
-
-<style>
-.cart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-}
-
-.cart-items {
-    margin-bottom: 20px;
-}
-
-.cart-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.cart-table th,
-.cart-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.cart-table th {
-    background-color: #f8f9fa;
-    font-weight: bold;
-}
-
-.cart-table a {
-    color: #007bff;
-    text-decoration: none;
-}
-
-.cart-table a:hover {
-    text-decoration: underline;
-}
-
-.cart-summary {
-    background-color: #f8f9fa;
-}
-
-.cart-summary .card-body {
-    text-align: right;
-    padding: 30px;
-}
-
-.cart-summary h2 {
-    margin-bottom: 20px;
-    font-size: 1.5em;
-}
-
-.total-price {
-    font-size: 1.8em;
-    color: #007bff;
-    margin: 20px 0;
-}
-
-.empty-cart {
-    text-align: center;
-    padding: 60px 20px;
-}
-
-.btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 1em;
-}
-
-.btn-primary {
-    background-color: #007bff;
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    color: white;
-}
-
-.btn-secondary:hover {
-    background-color: #545b62;
-}
-
-.btn-danger {
-    background-color: #dc3545;
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #c82333;
-}
-
-.btn-sm {
-    padding: 5px 10px;
-    font-size: 0.875em;
-}
-
-.btn-lg {
-    padding: 15px 30px;
-    font-size: 1.2em;
-}
-
-</style>

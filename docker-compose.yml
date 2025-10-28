@@ -26,12 +26,16 @@ services:
       - '48210:3000'
     volumes:
       - ./front.charlyMatLoc:/app
+      - front-node-modules:/app/node_modules
     working_dir: /app
     networks:
       - charlymatloc.net
     depends_on:
       - api-charlymatloc
-    command: sh -c "npm install && npm run dev"
+    command: >
+      sh -c "mkdir -p /app/node_modules
+      && npm install --omit=optional
+      && su node -c 'npm run dev'"
     restart: unless-stopped
 
   charlymatloc.db:
@@ -54,3 +58,5 @@ services:
       - charlymatloc.net
     restart: unless-stopped
 
+volumes:
+  front-node-modules:

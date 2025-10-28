@@ -1,58 +1,93 @@
 <section id="page-reservations" class="page reservations-page">
     <div class="container">
-        <div class="reservations-header">
-            <h1>Mes réservations</h1>
-            <a href="#" data-page="catalog" class="btn btn-secondary">Retour au catalogue</a>
-        </div>
+        <header class="reservations-hero">
+            <div>
+                <p class="reservations-hero__eyebrow">Historique</p>
+                <h1>Mes réservations</h1>
+                <p class="reservations-hero__description">
+                    Retrouvez ici l’ensemble de vos locations, leur statut et le détail de chaque matériel.
+                </p>
+            </div>
+            <a href="#" data-page="catalog" class="btn btn-secondary btn-ghost">← Retour au catalogue</a>
+        </header>
 
         {{#if hasReservations}}
-        <div class="reservations-list">
+        <div class="reservations-grid">
             {{#each reservations}}
             <article class="reservation-card">
-                <header class="reservation-card__header">
-                    <div>
-                        <h2>Réservation n°{{id}}</h2>
-                        <p>Effectuée le {{reservation_date}}</p>
+                <div class="reservation-card__top">
+                    <div class="reservation-card__identity">
+                        <span class="reservation-chip">#{{id}}</span>
+                        <h2>Réservation</h2>
+                        <span class="reservation-date">Créée le {{formatted_reservation_date}}</span>
                     </div>
-                    <div class="reservation-card__status status-{{status}}">
-                        {{status}}
-                    </div>
-                </header>
-                <div class="reservation-card__body">
-                    <p><strong>Montant total :</strong> {{total_amount}} €</p>
-                    {{#if items}}
-                    <table class="reservation-items">
-                        <thead>
-                            <tr>
-                                <th>Outil</th>
-                                <th>Période</th>
-                                <th>Quantité</th>
-                                <th>Prix unitaire</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{#each items}}
-                            <tr>
-                                <td><a href="#" data-page="tool-detail" data-id="{{tool_id}}">{{tool_name}}</a></td>
-                                <td>{{start_date}} → {{end_date}}</td>
-                                <td>{{quantity}}</td>
-                                <td>{{unit_price}} €</td>
-                                <td>{{total_price}} €</td>
-                            </tr>
-                            {{/each}}
-                        </tbody>
-                    </table>
-                    {{/if}}
+                    <span class="reservation-pill status-{{status}}">
+                        <span class="reservation-status-icon">{{status_icon}}</span>
+                        {{status_label}}
+                    </span>
                 </div>
+
+                <div class="reservation-card__summary">
+                    <div class="summary-badge">
+                        <span class="label">Montant total</span>
+                        <span class="value">{{total_amount}} €</span>
+                    </div>
+                    <div class="summary-badge">
+                        <span class="label">Articles</span>
+                        <span class="value">{{total_quantity}}</span>
+                    </div>
+                    <div class="summary-badge">
+                        <span class="label">Statut</span>
+                        <span class="value with-pill status-{{status}}">
+                            <span class="reservation-status-icon">{{status_icon}}</span>
+                            {{status_label}}
+                        </span>
+                    </div>
+                </div>
+
+                {{#if items}}
+                <div class="reservation-items-list">
+                    {{#each items}}
+                    <div class="reservation-item-card">
+                        <div class="reservation-item-card__header">
+                            <div>
+                                <h3>{{tool_name}}</h3>
+                                <p class="reservation-item-card__id">{{tool_id}}</p>
+                            </div>
+                            <a href="#" data-page="tool-detail" data-id="{{tool_id}}" class="btn btn-link">Voir la fiche</a>
+                        </div>
+                        <div class="reservation-item-card__body">
+                            <div class="reservation-item-row">
+                                <span class="label">Période</span>
+                                <span class="value">{{display_period}}</span>
+                            </div>
+                            <div class="reservation-item-row">
+                                <span class="label">Quantité</span>
+                                <span class="value">{{quantity}}</span>
+                            </div>
+                            <div class="reservation-item-row">
+                                <span class="label">Prix unitaire</span>
+                                <span class="value">{{unit_price}} €</span>
+                            </div>
+                            <div class="reservation-item-row highlight">
+                                <span class="label">Total</span>
+                                <span class="value">{{total_price}} €</span>
+                            </div>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+                {{/if}}
             </article>
             {{/each}}
         </div>
         {{else}}
-        <div class="card empty-state">
+        <div class="reservations-empty card">
             <div class="card-body">
-                <p>Vous n'avez encore aucune réservation.</p>
-                <a href="#" data-page="catalog" class="btn btn-primary">Voir le catalogue</a>
+                <span class="reservations-empty__icon">📦</span>
+                <h2>Aucune réservation pour l’instant</h2>
+                <p>Parcourez le catalogue et réservez le matériel dont vous avez besoin en quelques clics.</p>
+                <a href="#" data-page="catalog" class="btn btn-primary">Découvrir le catalogue</a>
             </div>
         </div>
         {{/if}}

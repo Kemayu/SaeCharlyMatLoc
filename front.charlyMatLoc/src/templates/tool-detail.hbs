@@ -19,7 +19,10 @@
             <hr>
             <div class="tool-description">
                 <p>{{description}}</p>
-                <p><strong>Stock disponible :</strong> {{stock}}</p>
+                <p class="tool-stock">
+                    <strong>Stock disponible :</strong>
+                    <span data-tool-stock>{{stock}}</span>
+                </p>
             </div>
 
             {{#if pricing_tiers}}
@@ -79,6 +82,7 @@
                             min="1"
                             max="{{stock}}"
                             value="1"
+                            data-stock-input
                             {{#unless ../isAuthenticated}}disabled{{/unless}}
                         >
                     </div>
