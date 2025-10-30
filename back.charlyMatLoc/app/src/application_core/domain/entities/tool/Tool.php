@@ -43,7 +43,7 @@ final class Tool
 
     public function getAvailableQuantity(): int
     {
-        return $this->stock > 0 ? 1 : 0;
+        return $this->stock;  // Retourne le stock réel
     }
 
     public function isAvailable(): bool

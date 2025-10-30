@@ -28,4 +28,10 @@ interface ToolRepositoryInterface
      * Vérifie la disponibilité d'un outil pour une période donnée
      */
     public function isAvailableForPeriod(int $toolId, string $startDate, string $endDate, int $quantity = 1): bool;
+
+    /**
+     * Calcule le stock disponible pour une période donnée
+     * Retourne le nombre d'unités disponibles
+     */
+    public function getAvailableStockForPeriod(int $toolId, string $startDate, string $endDate): int;
 }

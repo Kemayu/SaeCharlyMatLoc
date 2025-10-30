@@ -158,4 +158,41 @@ final class PDOToolRepository implements ToolRepositoryInterface
 
         return $availableStock >= $quantity;
     }
+
+    /**
+     * Calcule le stock disponible pour une période donnée
+     * Retourne le nombre d'unités disponibles (pas juste un booléen)
+     */
+    public function getAvailableStockForPeriod(int $toolId, string $startDate, string $endDate): int
+    {
+        // Récupère le stock total
+        $stmt = $this->pdo->prepare('SELECT stock FROM tools WHERE tool_id = :id');
+        $stmt->execute(['id' => $toolId]);
+        $stock = (int)$stmt->fetchColumn();
+
+        if ($stock === 0) {
+            return 0;
+        }
+
+        // Vérifie les réservations existantes sur la période
+        $stmt = $this->pdo->prepare('
+            SELECT COALESCE(SUM(ri.quantity), 0) as reserved_quantity
+            FROM reservation_items ri
+            JOIN reservations r ON ri.reservation_id = r.reservation_id
+            WHERE ri.tool_id = :tool_id
+            AND r.status_code IN (0, 1)
+            AND NOT (r.end_date < :start_date OR r.start_date > :end_date)
+        ');
+        
+        $stmt->execute([
+            'tool_id' => $toolId,
+            'start_date' => $startDate,
+            'end_date' => $endDate
+        ]);
+        
+        $reservedQuantity = (int)$stmt->fetchColumn();
+        $availableStock = $stock - $reservedQuantity;
+
+        return max(0, $availableStock); // Ne jamais retourner de nombre négatif
+    }
 }

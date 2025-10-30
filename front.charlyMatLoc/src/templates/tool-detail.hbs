@@ -86,13 +86,22 @@
                             {{#unless ../isAuthenticated}}disabled{{/unless}}
                         >
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block" {{#unless ../isAuthenticated}}disabled{{/unless}}>
-                        Ajouter au panier
+                    <button type="submit" class="btn btn-primary btn-block" {{#unless ../isAuthenticated}}disabled{{/unless}} {{#if ../isOutOfStock}}disabled{{/if}}>
+                        {{#if ../isOutOfStock}}
+                            Stock épuisé
+                        {{else}}
+                            Ajouter au panier
+                        {{/if}}
                     </button>
                 </form>
                 {{#unless ../isAuthenticated}}
                     <p class="login-hint">Connectez-vous pour ajouter des articles à votre panier.</p>
                 {{/unless}}
+                {{#if ../isOutOfStock}}
+                    <p class="stock-alert" style="color: #dc3545; margin-top: 0.5rem; font-weight: 600;">
+                        ⚠️ Cet outil n'est pas disponible actuellement.
+                    </p>
+                {{/if}}
             </div>
         </div>
     </div>

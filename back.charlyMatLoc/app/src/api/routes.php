@@ -6,6 +6,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use charlymatloc\api\actions\GetCatalogAction;
 use charlymatloc\api\actions\GetToolByIdAction;
+use charlymatloc\api\actions\GetToolAvailabilityAction;
 use charlymatloc\api\actions\GetCartDetailsAction;
 use charlymatloc\api\actions\AddToCartAction;
 use charlymatloc\api\actions\RemoveFromCartAction;
@@ -29,7 +30,7 @@ return function(App $app): App {
     $app->post('/auth/signup', RegisterAction::class)
         ->setName('auth.signup');
 
-    // ========== CATALOGUE (Public - Itération 1) ==========
+
     // GET /tools - Liste tous les outils du catalogue
     $app->get('/tools', GetCatalogAction::class)
         ->setName('tools.list');
@@ -38,7 +39,10 @@ return function(App $app): App {
     $app->get('/tools/{id}', GetToolByIdAction::class)
         ->setName('tools.get');
 
-    // ========== PANIER (Authentification requise - Itération 1) ==========
+    // GET /tools/{id}/availability - Stock disponible pour une période
+    $app->get('/tools/{id}/availability', GetToolAvailabilityAction::class)
+        ->setName('tools.availability');
+
     // GET /users/{userId}/cart - Récupère le panier d'un utilisateur
     $app->get('/users/{userId}/cart', GetCartDetailsAction::class)
         ->setName('cart.get')
@@ -63,7 +67,6 @@ return function(App $app): App {
         ->add(AuthzMiddleware::class)
         ->add(AuthnMiddleware::class);
 
-    // ========== RÉSERVATIONS (Authentification requise - Itération 2+) ==========
     // GET /users/{userId}/reservations - Liste les réservations d'un utilisateur
     $app->get('/users/{userId}/reservations', GetReservationsAction::class)
         ->setName('reservations.list')

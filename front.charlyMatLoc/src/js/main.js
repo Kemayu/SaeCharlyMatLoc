@@ -514,6 +514,20 @@ class App {
             } else if (e.target.id === 'availability-end') {
                 this.filterEndDate = e.target.value;
             }
+            // Détecter les changements de dates dans le formulaire de réservation
+            else if (e.target.name === 'start_date' || e.target.name === 'end_date') {
+                const form = e.target.closest('.add-to-cart-form');
+                if (form) {
+                    const toolId = parseInt(form.dataset.toolId, 10);
+                    const startInput = form.querySelector('input[name="start_date"]');
+                    const endInput = form.querySelector('input[name="end_date"]');
+                    
+                    if (startInput && endInput && startInput.value && endInput.value) {
+                        // Mettre à jour le stock disponible pour cette période
+                        this.refreshToolAvailability(toolId, startInput.value, endInput.value);
+                    }
+                }
+            }
         });
 
         document.addEventListener('focusin', (e) => {
@@ -969,13 +983,20 @@ class App {
         replaceTool(this.filteredTools);
     }
 
-    async refreshToolAvailability(toolId) {
+    async refreshToolAvailability(toolId, startDate = null, endDate = null) {
         if (!toolId) {
             return null;
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/tools/${toolId}`, {
+            let url = `${API_BASE_URL}/tools/${toolId}/availability`;
+            
+            // Si des dates sont fournies, les ajouter en query params
+            if (startDate && endDate) {
+                url += `?start_date=${startDate}&end_date=${endDate}`;
+            }
+
+            const response = await fetch(url, {
                 credentials: 'include'
             });
 
@@ -984,50 +1005,38 @@ class App {
             }
 
             const data = await response.json();
-            const tool = data.tool;
-            if (!tool) {
-                return null;
-            }
+            const availableStock = data.available_stock;
 
-            this.updateCachedTool(tool);
-
-            if (Array.isArray(this.cart?.items)) {
-                const updatedCartItems = this.cart.items.map(item => {
-                    if (item.tool?.id === tool.tool_id) {
-                        return {
-                            ...item,
-                            tool: {
-                                ...item.tool,
-                                stock: tool.stock
-                            }
-                        };
-                    }
-                    return item;
-                });
-
-                this.cart = {
-                    ...this.cart,
-                    items: updatedCartItems
-                };
-            }
-
+            // Mettre à jour l'affichage du stock
             if (typeof document !== 'undefined') {
                 const stockSpan = document.querySelector('[data-tool-stock]');
                 if (stockSpan) {
-                    stockSpan.textContent = tool.stock;
+                    stockSpan.textContent = availableStock;
                 }
 
                 const quantityInput = document.querySelector('[data-stock-input]');
                 if (quantityInput) {
-                    quantityInput.setAttribute('max', String(tool.stock));
+                    quantityInput.setAttribute('max', String(availableStock));
                     const currentValue = parseInt(quantityInput.value, 10);
-                    if (!Number.isNaN(currentValue) && currentValue > tool.stock) {
-                        quantityInput.value = tool.stock > 0 ? tool.stock : 1;
+                    if (!Number.isNaN(currentValue) && currentValue > availableStock) {
+                        quantityInput.value = availableStock > 0 ? availableStock : 1;
+                    }
+                }
+
+                // Gérer le bouton d'ajout au panier
+                const addButton = document.querySelector('.add-to-cart-form button[type="submit"]');
+                if (addButton) {
+                    if (availableStock === 0) {
+                        addButton.disabled = true;
+                        addButton.textContent = 'Stock épuisé';
+                    } else {
+                        addButton.disabled = false;
+                        addButton.textContent = 'Ajouter au panier';
                     }
                 }
             }
 
-            return tool;
+            return availableStock;
         } catch (error) {
             console.error('Erreur lors de la mise à jour du stock:', error);
             return null;
@@ -1223,6 +1232,15 @@ class App {
 
         await templateManager.renderPage(effectivePageName, data);
         this.renderFeedback();
+        
+        // Si c'est la page de détail d'outil, mettre à jour le stock avec les dates par défaut
+        if (effectivePageName === 'tool-detail' && data.tool && data.tool.tool_id) {
+            const defaultStart = data.defaultStartDate;
+            const defaultEnd = data.defaultEndDate;
+            if (defaultStart && defaultEnd) {
+                await this.refreshToolAvailability(data.tool.tool_id, defaultStart, defaultEnd);
+            }
+        }
     }
 
     async applyAvailabilityFilter() {
