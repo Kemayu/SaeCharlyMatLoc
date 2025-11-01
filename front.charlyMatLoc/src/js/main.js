@@ -1,6 +1,11 @@
 import { templateManager } from './templates.js';
 
-const API_BASE_URL = 'http://localhost:48211';
+// choisit dynamiquement la bonne URL selon l'environnement
+const isDev = window.location.hostname === 'localhost';
+const API_BASE_URL = isDev
+    ? 'http://localhost:48211'
+    : 'http://docketu.iutnc.univ-lorraine.fr:48211';
+
 
 // ============================================
 // GESTION DE L'AUTHENTIFICATION
