@@ -40,7 +40,6 @@ class TemplateManager {
             return;
         }
 
-        console.log(`Data for ${pageName}:`, data);
 
         const html = template(data);
         const container = document.querySelector(this.contentContainer);
