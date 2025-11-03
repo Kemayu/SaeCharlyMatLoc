@@ -58,4 +58,22 @@ class JwtAuthProvider implements AuthProviderInterface
             throw new AuthProviderInvalidAccessTokenException('Invalid access token', 0, $e);
         }
     }
+
+    public function refresh(string $refreshToken): AuthDTO
+    {
+        try {
+            // Valide le refresh token
+            $profile = $this->jwtManager->validate($refreshToken);
+
+            // Génère un nouvel access token
+            $newAccessToken = $this->jwtManager->create($profile, JwtManagerInterface::ACCESS_TOKEN);
+
+            // Retourne le nouveau access token + le même refresh token
+            return new AuthDTO($profile, $newAccessToken, $refreshToken);
+        } catch (JwtManagerExpiredTokenException $e) {
+            throw new AuthProviderExpiredAccessTokenException('Refresh token expired', 0, $e);
+        } catch (JwtManagerInvalidTokenException $e) {
+            throw new AuthProviderInvalidAccessTokenException('Invalid refresh token', 0, $e);
+        }
+    }
 }

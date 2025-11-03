@@ -13,6 +13,7 @@ use charlymatloc\api\actions\GetReservationByIdAction;
 use charlymatloc\api\actions\ProcessPaymentAction;
 use charlymatloc\api\actions\SigninAction;
 use charlymatloc\api\actions\RegisterAction;
+use charlymatloc\api\actions\RefreshTokenAction;
 use charlymatloc\core\ports\spi\ServiceToolInterface;
 use charlymatloc\core\ports\spi\ToolRepositoryInterface;
 use charlymatloc\core\ports\spi\ServiceCartInterface;
@@ -47,6 +48,7 @@ return [
     // Authentification
     SigninAction::class => fn(ContainerInterface $c) => new SigninAction($c->get(AuthProviderInterface::class)),
     RegisterAction::class => fn(ContainerInterface $c) => new RegisterAction($c->get(AuthProviderInterface::class)),
+    RefreshTokenAction::class => fn(ContainerInterface $c) => new RefreshTokenAction($c->get(AuthProviderInterface::class)),
 
     // Middleware CORS
     Cors::class => function (ContainerInterface $c) {

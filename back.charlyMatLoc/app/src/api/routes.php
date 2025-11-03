@@ -17,6 +17,7 @@ use charlymatloc\api\actions\ProcessPaymentAction;
 use charlymatloc\api\actions\UpdateCartItemQuantityAction;
 use charlymatloc\api\actions\SigninAction;
 use charlymatloc\api\actions\RegisterAction;
+use charlymatloc\api\actions\RefreshTokenAction;
 use charlymatloc\core\application\middlewares\AuthnMiddleware;
 use charlymatloc\core\application\middlewares\AuthzMiddleware;
 use Slim\App;
@@ -29,6 +30,9 @@ return function(App $app): App {
 
     $app->post('/auth/signup', RegisterAction::class)
         ->setName('auth.signup');
+
+    $app->post('/auth/refresh', RefreshTokenAction::class)
+        ->setName('auth.refresh');
 
 
     // GET /tools - Liste tous les outils du catalogue

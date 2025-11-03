@@ -113,6 +113,43 @@ class AuthManager {
         localStorage.removeItem('user');
     }
 
+    async refreshAccessToken() {
+        if (!this.refreshToken) {
+            throw new Error('No refresh token available');
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ refreshToken: this.refreshToken })
+            });
+
+            if (!response.ok) {
+                // Le refresh token a expiré ou est invalide
+                this.logout();
+                throw new Error('Session expired. Please login again.');
+            }
+
+            const data = await response.json();
+            
+            // Met à jour seulement l'access token (le refresh token reste le même)
+            this.token = data.accessToken;
+            this.user = data.profile;
+            
+            localStorage.setItem('access_token', this.token);
+            localStorage.setItem('user', JSON.stringify(this.user));
+
+            return true;
+        } catch (error) {
+            console.error('Erreur lors du refresh du token:', error);
+            this.logout();
+            throw error;
+        }
+    }
+
     getAuthHeaders() {
         if (!this.token) {
             return {
@@ -123,6 +160,41 @@ class AuthManager {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${this.token}`
         };
+    }
+
+    /**
+     * Effectue une requête API avec gestion automatique du refresh token
+     * @param {string} url - URL de la requête
+     * @param {object} options - Options fetch (method, body, etc.)
+     * @param {boolean} retry - Paramètre interne pour éviter les boucles infinies
+     * @returns {Promise<Response>}
+     */
+    async fetchWithAuth(url, options = {}, retry = true) {
+        // Ajoute les headers d'authentification
+        options.headers = {
+            ...options.headers,
+            ...this.getAuthHeaders()
+        };
+
+        let response = await fetch(url, options);
+
+        // Si 401 et qu'on a un refresh token, on tente de renouveler
+        if (response.status === 401 && this.refreshToken && retry) {
+            try {
+                await this.refreshAccessToken();
+                
+                // Réessaye la requête avec le nouveau token
+                options.headers['Authorization'] = `Bearer ${this.token}`;
+                response = await fetch(url, options);
+            } catch (error) {
+                // Le refresh a échoué, redirection vers login
+                console.error('Refresh token expired, redirecting to login');
+                window.location.hash = '#/login';
+                throw new Error('Session expired');
+            }
+        }
+
+        return response;
     }
 }
 
@@ -379,9 +451,7 @@ class App {
 
         try {
             const userId = this.authManager.getUser().id;
-            const response = await fetch(`${API_BASE_URL}/users/${userId}/cart`, {
-                headers: this.authManager.getAuthHeaders()
-            });
+            const response = await this.authManager.fetchWithAuth(`${API_BASE_URL}/users/${userId}/cart`);
             if (!response.ok) {
                 throw new Error(`Erreur HTTP lors du chargement du panier: ${response.status}`);
             }
@@ -410,9 +480,7 @@ class App {
 
         try {
             const userId = this.authManager.getUser().id;
-            const response = await fetch(`${API_BASE_URL}/users/${userId}/reservations`, {
-                headers: this.authManager.getAuthHeaders()
-            });
+            const response = await this.authManager.fetchWithAuth(`${API_BASE_URL}/users/${userId}/reservations`);
 
             if (!response.ok) {
                 throw new Error(`Erreur HTTP lors du chargement des réservations: ${response.status}`);
@@ -667,9 +735,8 @@ class App {
                 quantity
             };
 
-            const response = await fetch(`${API_BASE_URL}/users/${userId}/cart/items`, {
+            const response = await this.authManager.fetchWithAuth(`${API_BASE_URL}/users/${userId}/cart/items`, {
                 method: 'POST',
-                headers: this.authManager.getAuthHeaders(),
                 body: JSON.stringify(payload)
             });
 
@@ -710,9 +777,8 @@ class App {
 
         try {
             const userId = this.authManager.getUser().id;
-            const response = await fetch(`${API_BASE_URL}/users/${userId}/cart/items/${itemId}`, {
-                method: 'DELETE',
-                headers: this.authManager.getAuthHeaders()
+            const response = await this.authManager.fetchWithAuth(`${API_BASE_URL}/users/${userId}/cart/items/${itemId}`, {
+                method: 'DELETE'
             });
 
             if (!response.ok) {
@@ -753,9 +819,8 @@ class App {
             inputElement.disabled = true;
 
             const userId = this.authManager.getUser().id;
-            const response = await fetch(`${API_BASE_URL}/users/${userId}/cart/items/${itemId}`, {
+            const response = await this.authManager.fetchWithAuth(`${API_BASE_URL}/users/${userId}/cart/items/${itemId}`, {
                 method: 'PATCH',
-                headers: this.authManager.getAuthHeaders(),
                 body: JSON.stringify({ quantity: newQuantity })
             });
 
@@ -807,9 +872,8 @@ class App {
 
         try {
             const userId = this.authManager.getUser().id;
-            const reservationResponse = await fetch(`${API_BASE_URL}/users/${userId}/reservations`, {
-                method: 'POST',
-                headers: this.authManager.getAuthHeaders()
+            const reservationResponse = await this.authManager.fetchWithAuth(`${API_BASE_URL}/users/${userId}/reservations`, {
+                method: 'POST'
             });
 
             if (!reservationResponse.ok) {
@@ -832,9 +896,8 @@ class App {
                     card_holder: this.authManager.getUser().email
                 };
 
-                const paymentResponse = await fetch(`${API_BASE_URL}/users/${userId}/reservations/${reservation.id}/payments`, {
+                const paymentResponse = await this.authManager.fetchWithAuth(`${API_BASE_URL}/users/${userId}/reservations/${reservation.id}/payments`, {
                     method: 'POST',
-                    headers: this.authManager.getAuthHeaders(),
                     body: JSON.stringify(paymentPayload)
                 });
 

@@ -37,4 +37,13 @@ interface AuthProviderInterface
      * @throws AuthProviderInvalidAccessTokenException Si le token est invalide
      */
     public function getSignedInUser(string $accessToken): ProfileDTO;
+
+    /**
+     * Renouvelle l'access token avec un refresh token
+     * @param string $refreshToken Le refresh token JWT
+     * @return AuthDTO Le profil + le nouvel access token + le même refresh token
+     * @throws AuthProviderExpiredAccessTokenException Si le refresh token a expiré
+     * @throws AuthProviderInvalidAccessTokenException Si le refresh token est invalide
+     */
+    public function refresh(string $refreshToken): AuthDTO;
 }
