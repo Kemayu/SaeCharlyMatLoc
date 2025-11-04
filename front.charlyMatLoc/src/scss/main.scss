@@ -1,5 +1,6 @@
 @import 'base/_colors';
 @import 'base/_variables';
+@import 'base/_mixins';
 @import 'base/_reset';
 @import 'components/_buttons';
 @import 'components/_cards';
@@ -315,7 +316,7 @@ body {
         gap: 0.75rem;
         margin-bottom: $padding-lg;
 
-        @media (min-width: 768px) {
+        @include respond-to(tablet) {
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
@@ -333,7 +334,7 @@ body {
         flex-direction: column;
         gap: $padding-lg;
 
-        @media (min-width: 992px) {
+        @include respond-to(desktop) {
             display: grid;
             grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
             align-items: start;
@@ -362,7 +363,7 @@ body {
         flex-direction: column;
         gap: 0.5rem;
 
-        @media (min-width: 600px) {
+        @include respond-to(mobile) {
             flex-direction: row;
             justify-content: space-between;
             align-items: flex-start;
@@ -571,8 +572,8 @@ body {
 }
 
 // Navigation responsive
-@media (max-width: 768px) {
-    .nav .container {
+.nav .container {
+    @include respond-to(tablet, max) {
         flex-direction: column;
         gap: $padding-base;
         text-align: center;
@@ -1044,8 +1045,8 @@ body {
     }
 }
 
-@media (max-width: 768px) {
-    .reservations-page {
+.reservations-page {
+    @include respond-to(tablet, max) {
         .container {
             padding: $padding-base;
             border-radius: 18px;

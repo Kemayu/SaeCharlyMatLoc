@@ -1,0 +1,47 @@
+// Mixin pour les media queries responsive
+// Usage: @include respond-to(tablet) { ... }
+// Pour max-width: @include respond-to(tablet, max) { ... }
+
+@mixin respond-to($breakpoint, $type: min) {
+    @if $breakpoint == mobile {
+        @if $type == max {
+            @media (max-width: 575px) {
+                @content;
+            }
+        } @else {
+            @media (min-width: 576px) {
+                @content;
+            }
+        }
+    } @else if $breakpoint == tablet {
+        @if $type == max {
+            @media (max-width: 767px) {
+                @content;
+            }
+        } @else {
+            @media (min-width: 768px) {
+                @content;
+            }
+        }
+    } @else if $breakpoint == desktop {
+        @if $type == max {
+            @media (max-width: 991px) {
+                @content;
+            }
+        } @else {
+            @media (min-width: 992px) {
+                @content;
+            }
+        }
+    } @else if $breakpoint == wide {
+        @if $type == max {
+            @media (max-width: 1199px) {
+                @content;
+            }
+        } @else {
+            @media (min-width: 1200px) {
+                @content;
+            }
+        }
+    }
+}
